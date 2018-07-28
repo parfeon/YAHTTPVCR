@@ -1,0 +1,104 @@
+[
+  {
+    "id" : "FBACCD27-4BB7-42A2-9DE9-F93AF6213D9B",
+    "data" : {
+      "method" : "get",
+      "cls" : "NSURLRequest",
+      "cellular" : true,
+      "cache" : 0,
+      "timeout" : 60,
+      "cookies" : true,
+      "headers" : {
+        "User-Agent" : "YHVVCR2",
+        "Content-Type" : "application\/json",
+        "Authorization" : "Basic secret-authorization-value"
+      },
+      "pipeline" : false,
+      "network" : 0,
+      "url" : "https:\/\/httpbin.org\/delay\/2?queryField3=queryValue3&queryField1=secret-query-value"
+    },
+    "type" : 0
+  },
+  {
+    "id" : "F25562B7-B586-4CF7-A794-97C8005AFFF2",
+    "data" : {
+      "method" : "get",
+      "cls" : "NSURLRequest",
+      "cellular" : true,
+      "cache" : 0,
+      "timeout" : 60,
+      "cookies" : true,
+      "headers" : {
+        "User-Agent" : "YHVVCR2",
+        "Content-Type" : "application\/json",
+        "Authorization" : "Basic secret-authorization-value"
+      },
+      "pipeline" : false,
+      "network" : 0,
+      "url" : "https:\/\/httpbin.org\/get?queryField3=queryValue3&queryField1=secret-query-value"
+    },
+    "type" : 0
+  },
+  {
+    "id" : "F25562B7-B586-4CF7-A794-97C8005AFFF2",
+    "data" : {
+      "status" : 200,
+      "cls" : "NSHTTPURLResponse",
+      "url" : "https:\/\/httpbin.org\/get?queryField3=queryValue3&queryField1=secret-query-value",
+      "headers" : {
+        "Access-Control-Allow-Credentials" : "true",
+        "Content-Type" : "application\/json",
+        "Server" : "gunicorn\/19.9.0",
+        "Via" : "1.1 vegur",
+        "Access-Control-Allow-Origin" : "*",
+        "Date" : "Sat, 28 Jul 2018 21:02:29 GMT",
+        "Content-Length" : "599",
+        "Connection" : "keep-alive"
+      }
+    },
+    "type" : 1
+  },
+  {
+    "id" : "F25562B7-B586-4CF7-A794-97C8005AFFF2",
+    "data" : {
+      "cls" : "NSData",
+      "base64" : "eyJxdWVyeUZpZWxkMyI6InF1ZXJ5VmFsdWUzIiwicXVlcnlGaWVsZDEiOiJzZWNyZXQtcXVlcnktdmFsdWUifQ=="
+    },
+    "type" : 2
+  },
+  {
+    "id" : "F25562B7-B586-4CF7-A794-97C8005AFFF2",
+    "type" : 4
+  },
+  {
+    "id" : "FBACCD27-4BB7-42A2-9DE9-F93AF6213D9B",
+    "data" : {
+      "status" : 200,
+      "cls" : "NSHTTPURLResponse",
+      "url" : "https:\/\/httpbin.org\/delay\/2?queryField3=queryValue3&queryField1=secret-query-value",
+      "headers" : {
+        "Access-Control-Allow-Credentials" : "true",
+        "Content-Type" : "application\/json",
+        "Server" : "gunicorn\/19.9.0",
+        "Via" : "1.1 vegur",
+        "Access-Control-Allow-Origin" : "*",
+        "Date" : "Sat, 28 Jul 2018 21:02:31 GMT",
+        "Content-Length" : "649",
+        "Connection" : "keep-alive"
+      }
+    },
+    "type" : 1
+  },
+  {
+    "id" : "FBACCD27-4BB7-42A2-9DE9-F93AF6213D9B",
+    "data" : {
+      "cls" : "NSData",
+      "base64" : "eyJxdWVyeUZpZWxkMyI6InF1ZXJ5VmFsdWUzIiwicXVlcnlGaWVsZDEiOiJzZWNyZXQtcXVlcnktdmFsdWUifQ=="
+    },
+    "type" : 2
+  },
+  {
+    "id" : "FBACCD27-4BB7-42A2-9DE9-F93AF6213D9B",
+    "type" : 4
+  }
+]

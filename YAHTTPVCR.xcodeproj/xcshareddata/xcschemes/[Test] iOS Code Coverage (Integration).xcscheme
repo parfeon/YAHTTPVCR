@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Scheme
+   LastUpgradeVersion = "0940"
+   version = "1.3">
+   <BuildAction
+      parallelizeBuildables = "YES"
+      buildImplicitDependencies = "YES">
+   </BuildAction>
+   <TestAction
+      buildConfiguration = "Debug"
+      selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
+      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
+      codeCoverageEnabled = "YES"
+      shouldUseLaunchSchemeArgsEnv = "YES">
+      <CodeCoverageTargets>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "7988DCEA2104F68900A2A963"
+            BuildableName = "[Test] iOS Code Coverage (Integration).xctest"
+            BlueprintName = "[Test] iOS Code Coverage (Integration)"
+            ReferencedContainer = "container:YAHTTPVCR.xcodeproj">
+         </BuildableReference>
+      </CodeCoverageTargets>
+      <Testables>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "7988DCEA2104F68900A2A963"
+               BuildableName = "[Test] iOS Code Coverage (Integration).xctest"
+               BlueprintName = "[Test] iOS Code Coverage (Integration)"
+               ReferencedContainer = "container:YAHTTPVCR.xcodeproj">
+            </BuildableReference>
+            <SkippedTests>
+               <Test
+                  Identifier = "NSDataCategoryTest">
+               </Test>
+               <Test
+                  Identifier = "NSDictionaryCategoryTest">
+               </Test>
+               <Test
+                  Identifier = "NSErrorCategoryTest">
+               </Test>
+               <Test
+                  Identifier = "NSHTTPURLResponseCategoryTest">
+               </Test>
+               <Test
+                  Identifier = "NSMutableDictionaryCategoryTest">
+               </Test>
+               <Test
+                  Identifier = "NSURLRequestCategoryTest">
+               </Test>
+               <Test
+                  Identifier = "NSURLSessionConfigurationCategoryTest">
+               </Test>
+               <Test
+                  Identifier = "NSURLSessionTaskCategoryTest">
+               </Test>
+               <Test
+                  Identifier = "YHVConfigurationTest">
+               </Test>
+               <Test
+                  Identifier = "YHVIntegrationTestCase">
+               </Test>
+               <Test
+                  Identifier = "YHVRequestMatchersTest">
+               </Test>
+               <Test
+                  Identifier = "YHVSceneTest">
+               </Test>
+               <Test
+                  Identifier = "YHVVCRTest">
+               </Test>
+               <Test
+                  Identifier = "YHVVCRUnitTest">
+               </Test>
+            </SkippedTests>
+         </TestableReference>
+      </Testables>
+      <AdditionalOptions>
+      </AdditionalOptions>
+   </TestAction>
+   <LaunchAction
+      buildConfiguration = "Debug"
+      selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
+      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
+      enableThreadSanitizer = "YES"
+      enableUBSanitizer = "YES"
+      launchStyle = "0"
+      useCustomWorkingDirectory = "NO"
+      ignoresPersistentStateOnLaunch = "NO"
+      debugDocumentVersioning = "YES"
+      debugServiceExtension = "internal"
+      allowLocationSimulation = "YES">
+      <AdditionalOptions>
+      </AdditionalOptions>
+   </LaunchAction>
+   <ProfileAction
+      buildConfiguration = "Release"
+      shouldUseLaunchSchemeArgsEnv = "YES"
+      savedToolIdentifier = ""
+      useCustomWorkingDirectory = "NO"
+      debugDocumentVersioning = "YES">
+   </ProfileAction>
+   <AnalyzeAction
+      buildConfiguration = "Debug">
+   </AnalyzeAction>
+   <ArchiveAction
+      buildConfiguration = "Release"
+      revealArchiveInOrganizer = "YES">
+   </ArchiveAction>
+</Scheme>

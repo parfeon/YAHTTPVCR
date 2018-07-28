@@ -1,0 +1,53 @@
+[
+  {
+    "id" : "2129CAFC-2DA3-4F91-B4C6-50368E2A0841",
+    "data" : {
+      "method" : "get",
+      "cls" : "NSURLRequest",
+      "cellular" : true,
+      "cache" : 0,
+      "timeout" : 60,
+      "cookies" : true,
+      "headers" : {
+        "User-Agent" : "YHVVCR2",
+        "Content-Type" : "application\/json",
+        "Authorization" : "Basic secret-authorization-value"
+      },
+      "pipeline" : false,
+      "network" : 0,
+      "url" : "https:\/\/httpbin.org\/get?queryField3=queryValue3&queryField1=secret-query-value"
+    },
+    "type" : 0
+  },
+  {
+    "id" : "2129CAFC-2DA3-4F91-B4C6-50368E2A0841",
+    "data" : {
+      "status" : 200,
+      "cls" : "NSHTTPURLResponse",
+      "url" : "https:\/\/httpbin.org\/get?queryField3=queryValue3&queryField1=secret-query-value",
+      "headers" : {
+        "Access-Control-Allow-Credentials" : "true",
+        "Content-Type" : "application\/json",
+        "Server" : "gunicorn\/19.9.0",
+        "Via" : "1.1 vegur",
+        "Access-Control-Allow-Origin" : "*",
+        "Date" : "Sat, 28 Jul 2018 21:02:25 GMT",
+        "Content-Length" : "599",
+        "Connection" : "keep-alive"
+      }
+    },
+    "type" : 1
+  },
+  {
+    "id" : "2129CAFC-2DA3-4F91-B4C6-50368E2A0841",
+    "data" : {
+      "cls" : "NSData",
+      "base64" : "eyJxdWVyeUZpZWxkMyI6InF1ZXJ5VmFsdWUzIiwicXVlcnlGaWVsZDEiOiJzZWNyZXQtcXVlcnktdmFsdWUifQ=="
+    },
+    "type" : 2
+  },
+  {
+    "id" : "2129CAFC-2DA3-4F91-B4C6-50368E2A0841",
+    "type" : 4
+  }
+]
