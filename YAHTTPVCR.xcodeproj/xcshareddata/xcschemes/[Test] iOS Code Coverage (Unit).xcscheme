@@ -5,6 +5,22 @@
    <BuildAction
       parallelizeBuildables = "YES"
       buildImplicitDependencies = "YES">
+      <BuildActionEntries>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "79B0AFF620E519C600602E7E"
+               BuildableName = "[Test] iOS Code Coverage (Unit).xctest"
+               BlueprintName = "[Test] iOS Code Coverage (Unit)"
+               ReferencedContainer = "container:YAHTTPVCR.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+      </BuildActionEntries>
    </BuildAction>
    <TestAction
       buildConfiguration = "Debug"
@@ -59,6 +75,15 @@
       debugXPCServices = "NO"
       debugServiceExtension = "internal"
       allowLocationSimulation = "NO">
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "79B0AFF620E519C600602E7E"
+            BuildableName = "[Test] iOS Code Coverage (Unit).xctest"
+            BlueprintName = "[Test] iOS Code Coverage (Unit)"
+            ReferencedContainer = "container:YAHTTPVCR.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
       <EnvironmentVariables>
          <EnvironmentVariable
             key = "OS_ACTIVITY_MODE"
@@ -75,6 +100,15 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "79B0AFF620E519C600602E7E"
+            BuildableName = "[Test] iOS Code Coverage (Unit).xctest"
+            BlueprintName = "[Test] iOS Code Coverage (Unit)"
+            ReferencedContainer = "container:YAHTTPVCR.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">
