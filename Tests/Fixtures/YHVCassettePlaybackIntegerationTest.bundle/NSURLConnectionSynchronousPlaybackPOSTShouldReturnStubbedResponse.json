@@ -1,0 +1,57 @@
+[
+  {
+    "id" : "AC106153-262E-4DF8-A7D8-02646DD63A61",
+    "data" : {
+      "method" : "post",
+      "cls" : "NSURLRequest",
+      "cellular" : true,
+      "network" : 0,
+      "cache" : 0,
+      "timeout" : 60,
+      "cookies" : true,
+      "headers" : {
+        "User-Agent" : "YHVVCR2",
+        "Content-Type" : "application\/json",
+        "Authorization" : "Basic secret-authorization-value"
+      },
+      "body" : {
+        "cls" : "NSData",
+        "base64" : "eyJwb3N0Qm9keUZpZWxkMiI6InBvc3RCb2R5VmFsdWUyIiwicG9zdEJvZHlGaWVsZDEiOiJzZWNyZXQtcG9zdC1ib2R5LXZhbHVlIn0="
+      },
+      "pipeline" : false,
+      "url" : "https:\/\/httpbin.org\/post"
+    },
+    "type" : 0
+  },
+  {
+    "id" : "AC106153-262E-4DF8-A7D8-02646DD63A61",
+    "data" : {
+      "status" : 200,
+      "cls" : "NSHTTPURLResponse",
+      "url" : "https:\/\/httpbin.org\/post",
+      "headers" : {
+        "Access-Control-Allow-Credentials" : "true",
+        "Content-Type" : "application\/json",
+        "Server" : "gunicorn\/19.9.0",
+        "Via" : "1.1 vegur",
+        "Access-Control-Allow-Origin" : "*",
+        "Date" : "Sun, 29 Jul 2018 22:45:49 GMT",
+        "Content-Length" : "746",
+        "Connection" : "keep-alive"
+      }
+    },
+    "type" : 1
+  },
+  {
+    "id" : "AC106153-262E-4DF8-A7D8-02646DD63A61",
+    "data" : {
+      "cls" : "NSData",
+      "base64" : "eyJwb3N0Qm9keUZpZWxkMiI6InBvc3RCb2R5VmFsdWUyIiwicG9zdEJvZHlGaWVsZDEiOiJzZWNyZXQtcG9zdC1ib2R5LXZhbHVlIn0="
+    },
+    "type" : 2
+  },
+  {
+    "id" : "AC106153-262E-4DF8-A7D8-02646DD63A61",
+    "type" : 4
+  }
+]

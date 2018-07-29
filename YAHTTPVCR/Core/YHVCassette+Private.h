@@ -105,8 +105,45 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)handleError:(nullable NSError *)error playedForTask:(NSURLSessionTask *)task;
 
+/**
+ * @brief  Confirm request scene playback completion.
+ *
+ * @param request Reference on request for which request scene has been played.
+ *
+ * @since 1.1.0
+ */
+- (void)handleRequestPlayedForRequest:(NSURLRequest *)request;
 
-#pragma mark - Recording
+/**
+ * @brief  Confirm response scene playback completion.
+ *
+ * @param request Reference on request for which response scene has been played.
+ *
+ * @since 1.1.0
+ */
+- (void)handleResponsePlayedForRequest:(NSURLRequest *)request;
+
+/**
+ * @brief  Confirm data scene playback completion.
+ *
+ * @param request Reference on request for which data scene has been played.
+ *
+ * @since 1.1.0
+ */
+- (void)handleDataPlayedForRequest:(NSURLRequest *)request;
+
+/**
+ * @brief  Confirm error scene playback completion.
+ *
+ * @param error   Reference on error object from played scene.
+ * @param request Reference on request for which data scene has been played.
+ *
+ * @since 1.1.0
+ */
+- (void)handleError:(nullable NSError *)error playedForRequest:(NSURLRequest *)request;
+
+
+#pragma mark - Recording task
 
 /**
  * @brief  Start recording of original \a NSURLRequest data loading.
@@ -142,9 +179,60 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief  Remove any data which has been fetched so far by \c task.
  *
- * @param task Reference for which fetched response body should be cleared.
+ * @param task Reference on task for which fetched response body should be cleared.
  */
 - (void)clearFetchedDataForTask:(NSURLSessionTask *)task;
+
+
+#pragma mark - Recording request
+
+/**
+ * @brief  Start recording of \a NSURLRequest data loading.
+ *
+ * @param request Reference on request for which progress should be recorded.
+ *
+ * @since 1.1.0
+ */
+- (void)beginRecordingRequest:(NSURLRequest *)request;
+
+/**
+ * @brief  Record remote server \c response for specified \c request.
+ *
+ * @param response Reference on response object which contain data w/o actual body loaded from server.
+ * @param request  Reference on task which received this response for \a NSURLRequest.
+ *
+ * @since 1.1.0
+ */
+- (void)recordResponse:(NSURLResponse *)response forRequest:(NSURLRequest *)request;
+
+/**
+ * @brief  Record remote server \c response body for specified \c request.
+ *
+ * @param data    Reference on response body which has been requested by original \a NSURLRequest.
+ * @param request Reference on request which received this response body.
+ *
+ * @since 1.1.0
+ */
+- (void)recordData:(NSData *)data forRequest:(NSURLRequest *)request;
+
+/**
+ * @brief  Handle \c request processing error.
+ *
+ * @param error   Reference on error which happened during request processing.
+ * @param request Reference on task for which error has been created.
+ *
+ * @since 1.1.0
+ */
+- (void)recordCompletionWithError:(NSError *)error forRequest:(NSURLRequest *)request;
+
+/**
+ * @brief  Remove any data which has been fetched so far for \c request.
+ *
+ * @param request Reference on request for which fetched response body should be cleared.
+ *
+ * @since 1.1.0
+ */
+- (void)clearFetchedDataForRequest:(NSURLRequest *)request;
 
 #pragma mark -
 

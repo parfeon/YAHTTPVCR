@@ -9,6 +9,7 @@
 #import "NSDictionary+YHVNSURLRequest.h"
 #import "NSURLSessionTask+YHVRecorder.h"
 #import "NSMutableDictionary+YHVMisc.h"
+#import "NSURLConnection+YHVRecorder.h"
 #import "YHVConfiguration+Private.h"
 #import "NSURLRequest+YHVPlayer.h"
 #import "NSDictionary+YHVNSURL.h"
@@ -257,6 +258,7 @@ NS_ASSUME_NONNULL_END
     [YHVNSURLSessionConfiguration injectProtocol];
     [YHVNSURLSessionConnection makeRecordable];
     [YHVNSURLSessionTask makeRecordable];
+    [YHVNSURLConnection makeRecordable];
     [YHVNSURLRequest patch];
 }
 
@@ -424,6 +426,11 @@ NS_ASSUME_NONNULL_END
     [self.cassette handleError:error playedForTask:task];
 }
 
++ (void)handleRequestPlayedForRequest:(NSURLRequest *)request {
+    
+    [self.cassette handleRequestPlayedForRequest:request];
+}
+
 
 #pragma mark - Recording
 
@@ -453,6 +460,29 @@ NS_ASSUME_NONNULL_END
 }
 
 
+#pragma mark - Recording request
+
++ (void)beginRecordingRequest:(NSURLRequest *)request {
+    
+    [self.cassette beginRecordingRequest:request];
+}
+
++ (void)recordResponse:(NSURLResponse *)response forRequest:(NSURLRequest *)request {
+    
+    [self.cassette recordResponse:response forRequest:request];
+}
+
++ (void)recordData:(NSData *)data forRequest:(NSURLRequest *)request {
+    
+    [self.cassette recordData:data forRequest:request];
+}
+
++ (void)recordCompletionWithError:(NSError *)error forRequest:(NSURLRequest *)request {
+    
+    [self.cassette recordCompletionWithError:error forRequest:request];
+}
+
+
 #pragma mark - Filters
 
 - (YHVBeforeRecordRequestBlock)createBeforeRecordRequestBlockWithConfiguration:(YHVConfiguration *)configuration {
@@ -467,7 +497,7 @@ NS_ASSUME_NONNULL_END
     
     return ^NSURLRequest * (NSURLRequest *request) {
         if (configuration.hostsFilter && !((YHVHostFilterBlock)configuration.hostsFilter)(request.URL.host)) {
-            [NSURLProtocol setProperty:@YES forKey:kYHVCassetteRequestIgnoreKey inRequest:(id)request];
+            request.YHV_VCRIgnored = YES;
             return nil;
         }
         
@@ -487,11 +517,7 @@ NS_ASSUME_NONNULL_END
         }
         
         NSURLRequest *updatedRequest = beforeRecordRequest ? beforeRecordRequest(finalRequest) : finalRequest;
-        
-        if (!updatedRequest) {
-//            updatedRequest = finalRequest;
-            [NSURLProtocol setProperty:@YES forKey:kYHVCassetteRequestIgnoreKey inRequest:(id)request];
-        }
+        request.YHV_VCRIgnored = !updatedRequest;
         
         return updatedRequest;
     };

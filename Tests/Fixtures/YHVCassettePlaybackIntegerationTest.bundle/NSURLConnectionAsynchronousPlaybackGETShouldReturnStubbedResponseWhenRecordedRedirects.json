@@ -1,0 +1,53 @@
+[
+  {
+    "id" : "83F11B01-E77F-4FE2-B024-0C48651E44E2",
+    "data" : {
+      "method" : "get",
+      "cls" : "NSURLRequest",
+      "cellular" : true,
+      "cache" : 0,
+      "timeout" : 60,
+      "cookies" : true,
+      "headers" : {
+        "User-Agent" : "YHVVCR2",
+        "Content-Type" : "application\/json",
+        "Authorization" : "Basic secret-authorization-value"
+      },
+      "pipeline" : false,
+      "network" : 0,
+      "url" : "https:\/\/httpbin.org\/absolute-redirect\/3?queryField3=queryValue3&queryField1=secret-query-value"
+    },
+    "type" : 0
+  },
+  {
+    "id" : "83F11B01-E77F-4FE2-B024-0C48651E44E2",
+    "data" : {
+      "status" : 200,
+      "cls" : "NSHTTPURLResponse",
+      "url" : "https:\/\/httpbin.org\/absolute-redirect\/3?queryField3=queryValue3&queryField1=secret-query-value",
+      "headers" : {
+        "Access-Control-Allow-Credentials" : "true",
+        "Content-Type" : "application\/json",
+        "Server" : "gunicorn\/19.9.0",
+        "Via" : "1.1 vegur",
+        "Access-Control-Allow-Origin" : "*",
+        "Date" : "Sun, 29 Jul 2018 22:45:41 GMT",
+        "Content-Length" : "329",
+        "Connection" : "keep-alive"
+      }
+    },
+    "type" : 1
+  },
+  {
+    "id" : "83F11B01-E77F-4FE2-B024-0C48651E44E2",
+    "data" : {
+      "cls" : "NSData",
+      "base64" : "e30="
+    },
+    "type" : 2
+  },
+  {
+    "id" : "83F11B01-E77F-4FE2-B024-0C48651E44E2",
+    "type" : 4
+  }
+]

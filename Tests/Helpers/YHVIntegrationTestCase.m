@@ -38,7 +38,7 @@
 #pragma mark - Request processing
 
 /**
- * @brief      Send set of \c requests which will be cancelled after specified \c interval.
+ * @brief      Send set of \c requests which will be cancelled after specified \c interval \a NSURLSession.
  * @discussion Send asynchronous \c requests and cancel them after specified amount of time.
  *
  * @param requests Reference on requests list which should be processed.
@@ -46,9 +46,9 @@
  * @param block    Reference on request processing completion block which should be used to verify results. Block will be called for each
  *                 request.
  */
-- (void)sendRequests:(NSArray<NSURLRequest *> *)requests
-      withCancellationAfter:(NSTimeInterval)interval
-    resultVerificationBlock:(nullable YHVVerificationBlock)block;
+- (void)NSURLSessionSendRequests:(NSArray<NSURLRequest *> *)requests
+           withCancellationAfter:(NSTimeInterval)interval
+         resultVerificationBlock:(nullable YHVVerificationBlock)block;
 
 #pragma mark -
 
@@ -176,24 +176,91 @@
 
 #pragma mark - Request processing
 
-- (void)sendRequest:(NSURLRequest *)request withResultVerificationBlock:(YHVVerificationBlock)block {
+- (void)NSURLSessionSendRequest:(NSURLRequest *)request withResultVerificationBlock:(YHVVerificationBlock)block {
     
-    [self sendRequests:@[request] withResultVerificationBlock:block];
+    [self NSURLSessionSendRequests:@[request] withResultVerificationBlock:block];
 }
 
-- (void)sendRequests:(NSArray<NSURLRequest *> *)requests withResultVerificationBlock:(YHVVerificationBlock)block {
+- (void)NSURLConnectionSendRequest:(NSURLRequest *)request
+                     synchronously:(BOOL)synchronously
+       withResultVerificationBlock:(YHVVerificationBlock)block {
     
-    [self sendRequests:requests withCancellationAfter:-1.f resultVerificationBlock:block];
+    [self NSURLConnectionSendRequests:@[request] synchronously:synchronously withResultVerificationBlock:block];
 }
 
-- (void)sendRequest:(NSURLRequest *)request withCancellationAfter:(NSTimeInterval)interval resultVerificationBlock:(YHVVerificationBlock)block {
+- (void)NSURLSessionSendRequests:(NSArray<NSURLRequest *> *)requests withResultVerificationBlock:(YHVVerificationBlock)block {
     
-    [self sendRequests:@[request] withCancellationAfter:interval resultVerificationBlock:block];
+    [self NSURLSessionSendRequests:requests withCancellationAfter:-1.f resultVerificationBlock:block];
 }
 
-- (void)sendRequests:(NSArray<NSURLRequest *> *)requests
-      withCancellationAfter:(NSTimeInterval)interval
-    resultVerificationBlock:(nullable YHVVerificationBlock)block {
+- (void)NSURLConnectionSendRequests:(NSArray<NSURLRequest *> *)requests
+                      synchronously:(BOOL)synchronously
+        withResultVerificationBlock:(YHVVerificationBlock)block {
+    
+    NSOperationQueue *connectionQueue = [[NSOperationQueue alloc] init];
+    dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+    __block NSUInteger completedRequests = 0;
+    __block BOOL httpContainerError = NO;
+    __block NSError *requestError = nil;
+    
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+    for (NSURLRequest *request in requests) {
+        
+        void(^handlerBlock)(NSURLResponse *, NSData *, NSError *) = ^(NSURLResponse *response, NSData *data, NSError *connectionError) {
+            if (!httpContainerError && ((NSHTTPURLResponse *)response).statusCode >= 500) {
+                httpContainerError = YES;
+                requestError = connectionError;
+            }
+            
+            completedRequests++;
+            
+            if (block && ((NSHTTPURLResponse *)response).statusCode < 500) {
+                block(request, (NSHTTPURLResponse *)response, data, connectionError);
+            }
+            
+            if (!synchronously && completedRequests == requests.count) {
+                dispatch_semaphore_signal(semaphore);
+            }
+        };
+        
+        if (synchronously) {
+            NSURLResponse *response = nil;
+            NSError *error = nil;
+            NSData *data = [NSURLConnection sendSynchronousRequest:request returningResponse:&response error:&error];
+            
+            handlerBlock(response, data, error);
+        } else {
+            [NSURLConnection sendAsynchronousRequest:request queue:connectionQueue completionHandler:handlerBlock];
+        }
+    }
+#pragma GCC diagnostic pop
+    
+    if (!synchronously) {
+        dispatch_semaphore_wait(semaphore, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(60.f * NSEC_PER_SEC)));
+    }
+    
+    if (httpContainerError) {
+        NSLog(@"[%@] Error: %@", self.serviceURI, requestError);
+        
+        return;
+    }
+    
+    if (YHVVCR.cassette && !YHVVCR.cassette.isWriteProtected) {
+        XCTAssertTrue(YHVVCR.cassette.allPlayed);
+    }
+}
+
+- (void)NSURLSessionSendRequest:(NSURLRequest *)request
+          withCancellationAfter:(NSTimeInterval)interval
+        resultVerificationBlock:(YHVVerificationBlock)block {
+    
+    [self NSURLSessionSendRequests:@[request] withCancellationAfter:interval resultVerificationBlock:block];
+}
+
+- (void)NSURLSessionSendRequests:(NSArray<NSURLRequest *> *)requests
+           withCancellationAfter:(NSTimeInterval)interval
+         resultVerificationBlock:(YHVVerificationBlock)block {
     
     NSMutableArray<NSURLSessionDataTask *> *tasks = [NSMutableArray new];
     dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);

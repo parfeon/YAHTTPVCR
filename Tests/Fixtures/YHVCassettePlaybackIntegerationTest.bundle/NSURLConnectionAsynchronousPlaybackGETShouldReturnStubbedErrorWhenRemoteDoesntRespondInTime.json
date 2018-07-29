@@ -1,0 +1,50 @@
+[
+  {
+    "id" : "DC7773A3-06FD-4106-8D8E-EE86E292A2C0",
+    "data" : {
+      "method" : "get",
+      "cls" : "NSURLRequest",
+      "cellular" : true,
+      "cache" : 0,
+      "timeout" : 1,
+      "cookies" : true,
+      "headers" : {
+        "User-Agent" : "YHVVCR2",
+        "Content-Type" : "application\/json",
+        "Authorization" : "Basic secret-authorization-value"
+      },
+      "pipeline" : false,
+      "network" : 0,
+      "url" : "https:\/\/httpbin.org\/delay\/6?queryField3=queryValue3&queryField1=secret-query-value"
+    },
+    "type" : 0
+  },
+  {
+    "id" : "DC7773A3-06FD-4106-8D8E-EE86E292A2C0",
+    "data" : {
+      "code" : -1001,
+      "info" : {
+        "NSLocalizedDescription" : "The request timed out.",
+        "NSErrorFailingURLStringKey" : "https:\/\/httpbin.org\/delay\/6?queryField3=queryValue3&queryField1=secret-query-value",
+        "NSErrorFailingURLKey" : "https:\/\/httpbin.org\/delay\/6?queryField3=queryValue3&queryField1=secret-query-value",
+        "_kCFStreamErrorDomainKey" : 4,
+        "_kCFStreamErrorCodeKey" : -2102,
+        "NSUnderlyingError" : {
+          "code" : -1001,
+          "info" : {
+            "NSErrorFailingURLStringKey" : "https:\/\/httpbin.org\/delay\/6?queryField3=queryValue3&queryField1=secret-query-value",
+            "NSErrorFailingURLKey" : "https:\/\/httpbin.org\/delay\/6?queryField3=queryValue3&queryField1=secret-query-value",
+            "_kCFStreamErrorCodeKey" : -2102,
+            "_kCFStreamErrorDomainKey" : 4,
+            "NSLocalizedDescription" : "The request timed out."
+          },
+          "cls" : "NSError",
+          "domain" : "kCFErrorDomainCFNetwork"
+        }
+      },
+      "cls" : "NSError",
+      "domain" : "NSURLErrorDomain"
+    },
+    "type" : 3
+  }
+]

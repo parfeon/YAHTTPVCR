@@ -1,11 +1,10 @@
 [
   {
-    "id" : "01F868A0-B81B-4CE7-88B7-15EF6E29CAC7",
+    "id" : "48B2635D-89FB-4F5F-A594-A39DDF22D9C6",
     "data" : {
-      "method" : "post",
+      "method" : "get",
       "cls" : "NSURLRequest",
       "cellular" : true,
-      "network" : 0,
       "cache" : 0,
       "timeout" : 60,
       "cookies" : true,
@@ -14,44 +13,41 @@
         "Content-Type" : "application\/json",
         "Authorization" : "Basic secret-authorization-value"
       },
-      "body" : {
-        "cls" : "NSData",
-        "base64" : "eyJwb3N0Qm9keUZpZWxkMiI6InBvc3RCb2R5VmFsdWUyIiwicG9zdEJvZHlGaWVsZDEiOiJzZWNyZXQtcG9zdC1ib2R5LXZhbHVlIn0="
-      },
       "pipeline" : false,
-      "url" : "https:\/\/httpbin.org\/post"
+      "network" : 0,
+      "url" : "https:\/\/httpbin.org\/get?queryField3=queryValue3&queryField1=secret-query-value"
     },
     "type" : 0
   },
   {
-    "id" : "01F868A0-B81B-4CE7-88B7-15EF6E29CAC7",
+    "id" : "48B2635D-89FB-4F5F-A594-A39DDF22D9C6",
     "data" : {
       "status" : 200,
       "cls" : "NSHTTPURLResponse",
-      "url" : "https:\/\/httpbin.org\/post",
+      "url" : "https:\/\/httpbin.org\/get?queryField3=queryValue3&queryField1=secret-query-value",
       "headers" : {
         "Access-Control-Allow-Credentials" : "true",
         "Content-Type" : "application\/json",
         "Server" : "gunicorn\/19.9.0",
         "Via" : "1.1 vegur",
         "Access-Control-Allow-Origin" : "*",
-        "Date" : "Sat, 28 Jul 2018 21:02:34 GMT",
-        "Content-Length" : "746",
+        "Date" : "Sun, 29 Jul 2018 22:45:52 GMT",
+        "Content-Length" : "599",
         "Connection" : "keep-alive"
       }
     },
     "type" : 1
   },
   {
-    "id" : "01F868A0-B81B-4CE7-88B7-15EF6E29CAC7",
+    "id" : "48B2635D-89FB-4F5F-A594-A39DDF22D9C6",
     "data" : {
       "cls" : "NSData",
-      "base64" : "eyJwb3N0Qm9keUZpZWxkMiI6InBvc3RCb2R5VmFsdWUyIiwicG9zdEJvZHlGaWVsZDEiOiJzZWNyZXQtcG9zdC1ib2R5LXZhbHVlIn0="
+      "base64" : "eyJxdWVyeUZpZWxkMyI6InF1ZXJ5VmFsdWUzIiwicXVlcnlGaWVsZDEiOiJzZWNyZXQtcXVlcnktdmFsdWUifQ=="
     },
     "type" : 2
   },
   {
-    "id" : "01F868A0-B81B-4CE7-88B7-15EF6E29CAC7",
+    "id" : "48B2635D-89FB-4F5F-A594-A39DDF22D9C6",
     "type" : 4
   }
 ]

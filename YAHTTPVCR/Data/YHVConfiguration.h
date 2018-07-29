@@ -38,7 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @discussion Object can be \a NSArray with name of allowed hosts or \b YHVHostFilterBlock.
  *             \b YHVHostFilterBlock allow to make decisions dynamically basing on request.
  */
-@property (nonatomic, copy) id hostsFilter;
+@property (nonatomic, nullable, copy) id hostsFilter;
 
 /**
  * @brief      Stores reference on list of registered matchers (from \c YHVMatcher typedef) basing on which two requests should be compared with
@@ -68,7 +68,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief  Stores reference on block which allow to alter request's URI path component before stub store.
  */
-@property (nonatomic, copy) YHVPathFilterBlock pathFilter;
+@property (nonatomic, nullable, copy) YHVPathFilterBlock pathFilter;
 
 /**
  * @brief      Stores reference on object which is used to filter/replace query parameter values before stub store.
@@ -76,7 +76,7 @@ NS_ASSUME_NONNULL_BEGIN
  *             store [NSNull null] for \c key which should be removed) values for specific key in \a NSURL query string.
  *             \b YHVQueryParametersFilterBlock allow to make decisions dynamically basing on request.
  */
-@property (nonatomic, copy) id queryParametersFilter;
+@property (nonatomic, nullable, copy) id queryParametersFilter;
 
 /**
  * @brief      Stores reference on object which is used to filter/replace header values before stub store.
@@ -84,7 +84,7 @@ NS_ASSUME_NONNULL_BEGIN
  *             [NSNull null] for \c header which should be removed) values for specific header in \a NSURLRequest.
  *             \b YHVHeadersFilterBlock allow to make decisions dynamically basing on request.
  */
-@property (nonatomic, copy) id headersFilter;
+@property (nonatomic, nullable, copy) id headersFilter;
 
 /**
  * @brief      Stores reference on object which is used to filter/replace POST body before stub store.
@@ -93,7 +93,7 @@ NS_ASSUME_NONNULL_BEGIN
  *             values in encoded POST body. \a NSDictionary can be used only against JSON object or \c application/x-www-form-urlencoded.
  *             \b YHVPostBodyFilterBlock can be used for same purpose and allow to make decisions dynamically basing on request.
  */
-@property (nonatomic, copy) id postBodyFilter;
+@property (nonatomic, nullable, copy) id postBodyFilter;
 
 /**
  * @brief      Stores reference on object which is used to filter/replace response body before stub store.
@@ -102,20 +102,20 @@ NS_ASSUME_NONNULL_BEGIN
  *             values in encoded POST body. \a NSDictionary can be used only against JSON object or \c application/x-www-form-urlencoded.
  *             \b YHVResponseBodyFilterBlock can be used for same purpose and allow to make decisions dynamically basing on response.
  */
-@property (nonatomic, copy) id responseBodyFilter;
+@property (nonatomic, nullable, copy) id responseBodyFilter;
 
 /**
  * @brief      Stores reference on block which will be called by VCR each time when new request not from cassette will be noticed.
  * @discussion This is final point where it is possible to alter values of \a NSURLRequest which will be stored onto cassette.
  */
-@property (nonatomic, copy) YHVBeforeRecordRequestBlock beforeRecordRequest;
+@property (nonatomic, nullable, copy) YHVBeforeRecordRequestBlock beforeRecordRequest;
 
 /**
  * @brief      Stores reference on block which will be called by VCR each time when response for new request will be received.
  * @discussion This is final point where it is possible to alter values of \a NSHTTPURLResponse and service response binary \c data which will be
  *             stored onto cassette.
  */
-@property (nonatomic, copy) YHVBeforeRecordResponseBlock beforeRecordResponse;
+@property (nonatomic, nullable, copy) YHVBeforeRecordResponseBlock beforeRecordResponse;
 
 
 #pragma mark - Initialization and Configuration

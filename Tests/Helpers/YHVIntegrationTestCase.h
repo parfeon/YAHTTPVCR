@@ -44,35 +44,60 @@ typedef void(^YHVVerificationBlock)(NSURLRequest *request, NSHTTPURLResponse * _
 #pragma mark - Request processing
 
 /**
- * @brief      Send \c request with completion block.
+ * @brief      Send \c request with completion block using \a NSURLSession.
  * @discussion Send asynchronous \c request and wait till it completion.
  *
  * @param request Reference on request which should be processed.
  * @param block   Reference on request processing completion block which should be used to verify results.
  */
-- (void)sendRequest:(NSURLRequest *)request withResultVerificationBlock:(nullable YHVVerificationBlock)block;
+- (void)NSURLSessionSendRequest:(NSURLRequest *)request withResultVerificationBlock:(nullable YHVVerificationBlock)block;
 
 /**
- * @brief      Send list of \c requests with completion block.
+ * @brief      Send \c request with completion block using \a NSURLConnection.
+ * @discussion Send synchronous or asynchronous (depending from \c synchronously flag) \c request and wait till it completion.
+ *
+ * @param request       Reference on request which should be processed.
+ * @param synchronously Whether syncrhonous request should be sent or not.
+ * @param block         Reference on request processing completion block which should be used to verify results.
+ */
+- (void)NSURLConnectionSendRequest:(NSURLRequest *)request
+                     synchronously:(BOOL)synchronously
+       withResultVerificationBlock:(nullable YHVVerificationBlock)block;
+
+/**
+ * @brief      Send list of \c requests with completion block using \a NSURLSession.
  * @discussion Send asynchronous \c requests and wait till all will be completion.
  *
  * @param requests Reference on requests list which should be processed.
  * @param block    Reference on request processing completion block which should be used to verify results. Block will be called for each
  *                 request.
  */
-- (void)sendRequests:(NSArray<NSURLRequest *> *)requests withResultVerificationBlock:(nullable YHVVerificationBlock)block;
+- (void)NSURLSessionSendRequests:(NSArray<NSURLRequest *> *)requests withResultVerificationBlock:(nullable YHVVerificationBlock)block;
 
 /**
- * @brief      Send \c request which will be cancelled after specified \c interval.
+ * @brief      Send list of \c requests with completion block using \a NSURLConnection.
+ * @discussion Send synchronous or asynchronous (depending from \c synchronously flag) \c requests and wait till it completion.
+ *
+ * @param requests      Reference on requests list which should be processed.
+ * @param synchronously Whether syncrhonous requests should be sent or not.
+ * @param block         Reference on request processing completion block which should be used to verify results. Block will be called for each
+ *                      request.
+ */
+- (void)NSURLConnectionSendRequests:(NSArray<NSURLRequest *> *)requests
+                      synchronously:(BOOL)synchronously
+        withResultVerificationBlock:(nullable YHVVerificationBlock)block;
+
+/**
+ * @brief      Send \c request which will be cancelled after specified \c interval using \a NSURLSession.
  * @discussion Send asynchronous \c request and cancel it after specified amount of time.
  *
  * @param request  Reference on request which should be processed.
  * @param interval Interval after which request should be cancelled.
  * @param block    Reference on request processing completion block which should be used to verify results.
  */
-- (void)sendRequest:(NSURLRequest *)request
-    withCancellationAfter:(NSTimeInterval)interval
-  resultVerificationBlock:(nullable YHVVerificationBlock)block;
+- (void)NSURLSessionSendRequest:(NSURLRequest *)request
+          withCancellationAfter:(NSTimeInterval)interval
+        resultVerificationBlock:(nullable YHVVerificationBlock)block;
 
 
 #pragma mark - Cassette

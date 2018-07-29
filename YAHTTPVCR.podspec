@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
     spec.name     = 'YAHTTPVCR'
-    spec.version  = '1.0.0'
+    spec.version  = '1.1.0'
     spec.summary  = 'Yet Another HTTP VCR.'
     spec.homepage = 'https://github.com/parfeon/YAHTTPVCR'
     spec.documentation_url = 'https://github.com/parfeon/YAHTTPVCR/wiki'

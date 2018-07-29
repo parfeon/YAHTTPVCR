@@ -1,6 +1,6 @@
 [
   {
-    "id" : "F9D1B0D3-F463-44C3-B89B-3BF52FA4A108",
+    "id" : "465E0C5C-3AEA-4EEF-914F-614A0606024A",
     "data" : {
       "method" : "get",
       "cls" : "NSURLRequest",
@@ -20,7 +20,7 @@
     "type" : 0
   },
   {
-    "id" : "F9D1B0D3-F463-44C3-B89B-3BF52FA4A108",
+    "id" : "465E0C5C-3AEA-4EEF-914F-614A0606024A",
     "data" : {
       "code" : -1001,
       "info" : {
@@ -32,8 +32,11 @@
         "NSUnderlyingError" : {
           "code" : -1001,
           "info" : {
+            "NSErrorFailingURLStringKey" : "https:\/\/httpbin.org\/delay\/6?queryField3=queryValue3&queryField1=secret-query-value",
+            "NSErrorFailingURLKey" : "https:\/\/httpbin.org\/delay\/6?queryField3=queryValue3&queryField1=secret-query-value",
             "_kCFStreamErrorCodeKey" : -2102,
-            "_kCFStreamErrorDomainKey" : 4
+            "_kCFStreamErrorDomainKey" : 4,
+            "NSLocalizedDescription" : "The request timed out."
           },
           "cls" : "NSError",
           "domain" : "kCFErrorDomainCFNetwork"

@@ -39,6 +39,10 @@
 #pragma mark - Remote data fetching
 
 - (void)startLoading {
+
+    if (!self.request.YHV_usingNSURLSession) {
+        [YHVVCR handleRequestPlayedForRequest:self.request];
+    }
     
     [YHVVCR playResponsesForRequest:self.request];
 }

@@ -18,6 +18,27 @@
 @property (nonatomic, readonly, strong) NSData *YHV_HTTPBody;
 
 /**
+ * @brief  Stores whether request has been ignored by VCR or not.
+ *
+ * @since 1.1.0
+ */
+@property (nonatomic, assign) BOOL YHV_VCRIgnored;
+
+/**
+ * @brief  Stores whether request delivered using \a NSURLSession or \a NSURLConnection.
+ *
+ * @since 1.1.0
+ */
+@property (nonatomic, assign) BOOL YHV_usingNSURLSession;
+
+/**
+ * @brief  Stores reference on unique request identifier (inherited from task or own).
+ *
+ * @since 1.1.0
+ */
+@property (nonatomic, copy) NSString *YHV_identifier;
+
+/**
  * @brief  Stores reference on identifier of chapter in which this request used.
  */
 @property (nonatomic, copy) NSString *YHV_cassetteChapterIdentifier;

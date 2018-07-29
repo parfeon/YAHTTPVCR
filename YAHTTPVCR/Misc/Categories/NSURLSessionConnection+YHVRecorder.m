@@ -56,6 +56,9 @@
 #pragma mark - Swizzle methods
 
 - (id)YHV_initWithTask:(NSURLSessionTask *)task delegate:(id)delegate delegateQueue:(id)queue {
+
+    task.originalRequest.YHV_usingNSURLSession = YES;
+    task.currentRequest.YHV_usingNSURLSession = YES;
     
     if (task.originalRequest.YHV_cassetteChapterIdentifier || task.currentRequest.YHV_cassetteChapterIdentifier) {
         [YHVVCR handleRequestPlayedForTask:task];

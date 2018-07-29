@@ -48,42 +48,46 @@
 }
 
 
-#pragma mark - Tests :: Playback :: GET
+#pragma mark - Tests :: Playback :: NSURLSession :: GET
 
-- (void)testPlaybackGET_ShouldReturnStubbedResponse {
+- (void)testNSURLSessionPlaybackGET_ShouldReturnStubbedResponse {
     
     NSURLRequest *targetRequest = [self GETRequestWithPath:@"/get"];
     
-    [self sendRequest:targetRequest withResultVerificationBlock:^(NSURLRequest *request, NSHTTPURLResponse *response, NSData *data, NSError *error) {
+    [self NSURLSessionSendRequest:targetRequest
+      withResultVerificationBlock:^(NSURLRequest *request, NSHTTPURLResponse *response, NSData *data, NSError *error) {
+          
         [self assertResponse:response playedForRequest:request withData:data];
     }];
 }
 
-- (void)testPlaybackGET_ShouldIgnoreAdditionalRequest_WhenHostFilterConfigured {
+- (void)testNSURLSessionPlaybackGET_ShouldIgnoreAdditionalRequest_WhenHostFilterConfigured {
     
     NSURLRequest *targetRequest = [self GETRequestWithPath:@"/get"];
     NSURLRequest *ghRateLimits = [NSURLRequest requestWithURL:[NSURL URLWithString:@"https://api.github.com/rate_limit"]];
     NSArray<NSURLRequest *> *requests = @[targetRequest, ghRateLimits];
     
-    [self sendRequests:requests withResultVerificationBlock:nil];
+    [self NSURLSessionSendRequests:requests withResultVerificationBlock:nil];
 }
 
-- (void)testPlaybackGET_ShouldIgnoreAdditionalRequest_WhenIgnoredInBeforeRecordRequest {
+- (void)testNSURLSessionPlaybackGET_ShouldIgnoreAdditionalRequest_WhenIgnoredInBeforeRecordRequest {
     
     NSURLRequest *targetRequest = [self GETRequestWithPath:@"/get"];
     NSURLRequest *ghRateLimits = [NSURLRequest requestWithURL:[NSURL URLWithString:@"https://api.github.com/rate_limit"]];
     NSArray<NSURLRequest *> *requests = @[targetRequest, ghRateLimits];
     
-    [self sendRequests:requests withResultVerificationBlock:nil];
+    [self NSURLSessionSendRequests:requests withResultVerificationBlock:nil];
 }
 
-- (void)testPlaybackGET_ShouldReturnStubbedResponsesChronologically_WhenFewRequestStubbed {
+- (void)testNSURLSessionPlaybackGET_ShouldReturnStubbedResponsesChronologically_WhenFewRequestStubbed {
     
     NSArray<NSURLRequest *> *requests = @[[self GETRequestWithPath:@"/delay/2"], [self GETRequestWithPath:@"/get"]];
     __block NSTimeInterval delayCompletionDate = 0;
     __block NSTimeInterval getCompletionDate = 0;
     
-    [self sendRequests:requests withResultVerificationBlock:^(NSURLRequest *request, NSHTTPURLResponse *response, NSData *data, NSError *error) {
+    [self NSURLSessionSendRequests:requests
+       withResultVerificationBlock:^(NSURLRequest *request, NSHTTPURLResponse *response, NSData *data, NSError *error) {
+           
         if ([request.URL.path isEqualToString:requests.firstObject.URL.path]) {
             delayCompletionDate = [NSDate date].timeIntervalSince1970;
             
@@ -98,13 +102,15 @@
     XCTAssertGreaterThan(delayCompletionDate, getCompletionDate);
 }
 
-- (void)testPlaybackGET_ShouldReturnStubbedResponsesMomentary_WhenFewRequestStubbed {
+- (void)testNSURLSessionPlaybackGET_ShouldReturnStubbedResponsesMomentary_WhenFewRequestStubbed {
     
     NSArray<NSURLRequest *> *requests = @[[self GETRequestWithPath:@"/delay/2"], [self GETRequestWithPath:@"/get"]];
     __block NSTimeInterval delayCompletionDate = 0;
     __block NSTimeInterval getCompletionDate = 0;
     
-    [self sendRequests:requests withResultVerificationBlock:^(NSURLRequest *request, NSHTTPURLResponse *response, NSData *data, NSError *error) {
+    [self NSURLSessionSendRequests:requests
+       withResultVerificationBlock:^(NSURLRequest *request, NSHTTPURLResponse *response, NSData *data, NSError *error) {
+           
         if ([request.URL.path isEqualToString:requests.firstObject.URL.path]) {
             delayCompletionDate = [NSDate date].timeIntervalSince1970;
             
@@ -119,45 +125,241 @@
     XCTAssertTrue(delayCompletionDate <= getCompletionDate);
 }
 
-- (void)testPlaybackGET_ShouldReturnStubbedResponse_WhenRecordedRedirects {
+- (void)testNSURLSessionPlaybackGET_ShouldReturnStubbedResponse_WhenRecordedRedirects {
     
     NSURLRequest *targetRequest = [self GETRequestWithPath:@"/absolute-redirect/3"];
     
-    [self sendRequest:targetRequest withResultVerificationBlock:^(NSURLRequest *request, NSHTTPURLResponse *response, NSData *data, NSError *error) {
+    [self NSURLSessionSendRequest:targetRequest
+      withResultVerificationBlock:^(NSURLRequest *request, NSHTTPURLResponse *response, NSData *data, NSError *error) {
+          
         [self assertResponse:response playedForRequest:request withData:data];
     }];
 }
 
-- (void)testPlaybackGET_ShouldReturnStubbedError_WhenRemoteDoesntRespondInTime {
+- (void)testNSURLSessionPlaybackGET_ShouldReturnStubbedError_WhenRemoteDoesntRespondInTime {
     
     NSMutableURLRequest *targetRequest = [self GETRequestWithPath:@"/delay/6"];
     targetRequest.timeoutInterval = 1.f;
     
-    [self sendRequest:targetRequest withResultVerificationBlock:^(NSURLRequest *request, NSHTTPURLResponse *response, NSData *data, NSError *error) {
+    [self NSURLSessionSendRequest:targetRequest
+      withResultVerificationBlock:^(NSURLRequest *request, NSHTTPURLResponse *response, NSData *data, NSError *error) {
+          
         XCTAssertNotNil(error);
     }];
 }
 
-- (void)testPlaybackGET_ShouldReturnStubbedError_WhenRequestCancelled {
+- (void)testNSURLSessionPlaybackGET_ShouldReturnStubbedError_WhenRequestCancelled {
     
     NSURLRequest *targetRequest = [self GETRequestWithPath:@"/delay/6"];
     
-    [self sendRequest:targetRequest withCancellationAfter:0.5f
-    resultVerificationBlock:^(NSURLRequest *request, NSHTTPURLResponse *response, NSData *data, NSError *error) {
+    [self NSURLSessionSendRequest:targetRequest
+            withCancellationAfter:0.5f
+          resultVerificationBlock:^(NSURLRequest *request, NSHTTPURLResponse *response, NSData *data, NSError *error) {
+              
         XCTAssertNotNil(error);
     }];
 }
 
 
-#pragma mark - Tests :: Playback :: POST
+#pragma mark - Tests :: Playback :: NSURLConnection :: GET
 
-- (void)testPlaybackPOST_ShouldReturnStubbedResponse {
+- (void)testNSURLConnectionSynchronousPlaybackGET_ShouldReturnStubbedResponse {
+    
+    NSURLRequest *targetRequest = [self GETRequestWithPath:@"/get"];
+    
+    [self NSURLConnectionSendRequest:targetRequest
+                       synchronously:YES
+         withResultVerificationBlock:^(NSURLRequest *request, NSHTTPURLResponse *response, NSData *data, NSError *error) {
+          
+        [self assertResponse:response playedForRequest:request withData:data];
+    }];
+}
+
+- (void)testNSURLConnectionSynchronousPlaybackGET_ShouldIgnoreAdditionalRequest_WhenHostFilterConfigured {
+    
+    NSURLRequest *targetRequest = [self GETRequestWithPath:@"/get"];
+    NSURLRequest *ghRateLimits = [NSURLRequest requestWithURL:[NSURL URLWithString:@"https://api.github.com/rate_limit"]];
+    NSArray<NSURLRequest *> *requests = @[targetRequest, ghRateLimits];
+    
+    [self NSURLConnectionSendRequests:requests synchronously:YES withResultVerificationBlock:nil];
+}
+
+- (void)testNSURLConnectionSynchronousPlaybackGET_ShouldIgnoreAdditionalRequest_WhenIgnoredInBeforeRecordRequest {
+    
+    NSURLRequest *targetRequest = [self GETRequestWithPath:@"/get"];
+    NSURLRequest *ghRateLimits = [NSURLRequest requestWithURL:[NSURL URLWithString:@"https://api.github.com/rate_limit"]];
+    NSArray<NSURLRequest *> *requests = @[targetRequest, ghRateLimits];
+    
+    [self NSURLConnectionSendRequests:requests synchronously:YES withResultVerificationBlock:nil];
+}
+
+- (void)testNSURLConnectionSynchronousPlaybackGET_ShouldReturnStubbedResponse_WhenRecordedRedirects {
+    
+    NSURLRequest *targetRequest = [self GETRequestWithPath:@"/absolute-redirect/3"];
+    
+    [self NSURLConnectionSendRequest:targetRequest
+                       synchronously:YES
+         withResultVerificationBlock:^(NSURLRequest *request, NSHTTPURLResponse *response, NSData *data, NSError *error) {
+          
+        [self assertResponse:response playedForRequest:request withData:data];
+    }];
+}
+
+- (void)testNSURLConnectionSynchronousPlaybackGET_ShouldReturnStubbedError_WhenRemoteDoesntRespondInTime {
+    
+    NSMutableURLRequest *targetRequest = [self GETRequestWithPath:@"/delay/6"];
+    targetRequest.timeoutInterval = 1.f;
+    
+    [self NSURLConnectionSendRequest:targetRequest
+                       synchronously:YES
+         withResultVerificationBlock:^(NSURLRequest *request, NSHTTPURLResponse *response, NSData *data, NSError *error) {
+          
+        XCTAssertNotNil(error);
+    }];
+}
+
+- (void)testNSURLConnectionAsynchronousPlaybackGET_ShouldReturnStubbedResponse {
+    
+    NSURLRequest *targetRequest = [self GETRequestWithPath:@"/get"];
+    
+    [self NSURLConnectionSendRequest:targetRequest
+                       synchronously:NO
+         withResultVerificationBlock:^(NSURLRequest *request, NSHTTPURLResponse *response, NSData *data, NSError *error) {
+          
+        [self assertResponse:response playedForRequest:request withData:data];
+    }];
+}
+
+- (void)testNSURLConnectionAsynchronousPlaybackGET_ShouldIgnoreAdditionalRequest_WhenHostFilterConfigured {
+    
+    NSURLRequest *targetRequest = [self GETRequestWithPath:@"/get"];
+    NSURLRequest *ghRateLimits = [NSURLRequest requestWithURL:[NSURL URLWithString:@"https://api.github.com/rate_limit"]];
+    NSArray<NSURLRequest *> *requests = @[targetRequest, ghRateLimits];
+    
+    [self NSURLConnectionSendRequests:requests synchronously:NO withResultVerificationBlock:nil];
+}
+
+- (void)testNSURLConnectionAsynchronousPlaybackGET_ShouldIgnoreAdditionalRequest_WhenIgnoredInBeforeRecordRequest {
+    
+    NSURLRequest *targetRequest = [self GETRequestWithPath:@"/get"];
+    NSURLRequest *ghRateLimits = [NSURLRequest requestWithURL:[NSURL URLWithString:@"https://api.github.com/rate_limit"]];
+    NSArray<NSURLRequest *> *requests = @[targetRequest, ghRateLimits];
+    
+    [self NSURLConnectionSendRequests:requests synchronously:NO withResultVerificationBlock:nil];
+}
+
+- (void)testNSURLConnectionAsynchronousPlaybackGET_ShouldReturnStubbedResponsesChronologically_WhenFewRequestStubbed {
+    
+    NSArray<NSURLRequest *> *requests = @[[self GETRequestWithPath:@"/delay/2"], [self GETRequestWithPath:@"/get"]];
+    __block NSTimeInterval delayCompletionDate = 0;
+    __block NSTimeInterval getCompletionDate = 0;
+    
+    [self NSURLConnectionSendRequests:requests
+                        synchronously:NO
+          withResultVerificationBlock:^(NSURLRequest *request, NSHTTPURLResponse *response, NSData *data, NSError *error) {
+           
+        if ([request.URL.path isEqualToString:requests.firstObject.URL.path]) {
+            delayCompletionDate = [NSDate date].timeIntervalSince1970;
+            
+            [self assertResponse:response playedForRequest:request withData:data];
+        } else {
+            getCompletionDate = [NSDate date].timeIntervalSince1970;
+            
+            [self assertResponse:response playedForRequest:request withData:data];
+        }
+    }];
+    
+    XCTAssertGreaterThan(delayCompletionDate, getCompletionDate);
+}
+
+- (void)testNSURLConnectionAsynchronousPlaybackGET_ShouldReturnStubbedResponsesMomentary_WhenFewRequestStubbed {
+    
+    NSArray<NSURLRequest *> *requests = @[[self GETRequestWithPath:@"/delay/2"], [self GETRequestWithPath:@"/get"]];
+    __block NSTimeInterval delayCompletionDate = 0;
+    __block NSTimeInterval getCompletionDate = 0;
+    
+    [self NSURLConnectionSendRequests:requests
+                        synchronously:NO
+          withResultVerificationBlock:^(NSURLRequest *request, NSHTTPURLResponse *response, NSData *data, NSError *error) {
+           
+        if ([request.URL.path isEqualToString:requests.firstObject.URL.path]) {
+            delayCompletionDate = [NSDate date].timeIntervalSince1970;
+            
+            [self assertResponse:response playedForRequest:request withData:data];
+        } else {
+            getCompletionDate = [NSDate date].timeIntervalSince1970;
+            
+            [self assertResponse:response playedForRequest:request withData:data];
+        }
+    }];
+    
+    XCTAssertTrue(delayCompletionDate <= getCompletionDate);
+}
+
+- (void)testNSURLConnectionAsynchronousPlaybackGET_ShouldReturnStubbedResponse_WhenRecordedRedirects {
+    
+    NSURLRequest *targetRequest = [self GETRequestWithPath:@"/absolute-redirect/3"];
+    
+    [self NSURLConnectionSendRequest:targetRequest
+                       synchronously:NO
+         withResultVerificationBlock:^(NSURLRequest *request, NSHTTPURLResponse *response, NSData *data, NSError *error) {
+          
+        [self assertResponse:response playedForRequest:request withData:data];
+    }];
+}
+
+- (void)testNSURLConnectionAsynchronousPlaybackGET_ShouldReturnStubbedError_WhenRemoteDoesntRespondInTime {
+    
+    NSMutableURLRequest *targetRequest = [self GETRequestWithPath:@"/delay/6"];
+    targetRequest.timeoutInterval = 1.f;
+    
+    [self NSURLConnectionSendRequest:targetRequest
+                       synchronously:NO
+         withResultVerificationBlock:^(NSURLRequest *request, NSHTTPURLResponse *response, NSData *data, NSError *error) {
+          
+        XCTAssertNotNil(error);
+    }];
+}
+
+
+#pragma mark - Tests :: Playback :: NSURLSession :: POST
+
+- (void)testNSURLSessionPlaybackPOST_ShouldReturnStubbedResponse {
     
     NSURLRequest *targetRequest = [self POSTRequestWithPath:@"/post"];
     
-    [self sendRequest:targetRequest withResultVerificationBlock:^(NSURLRequest *request, NSHTTPURLResponse *response, NSData *data, NSError *error) {
-        [self assertResponse:response playedForRequest:request withData:data];
-    }];
+    [self NSURLSessionSendRequest:targetRequest
+      withResultVerificationBlock:^(NSURLRequest *request, NSHTTPURLResponse *response, NSData *data, NSError *error) {
+          
+          [self assertResponse:response playedForRequest:request withData:data];
+      }];
+}
+
+
+#pragma mark - Tests :: Playback :: NSURLConnection :: POST
+
+- (void)testNSURLConnectionSynchronousPlaybackPOST_ShouldReturnStubbedResponse {
+    
+    NSURLRequest *targetRequest = [self POSTRequestWithPath:@"/post"];
+    
+    [self NSURLConnectionSendRequest:targetRequest
+                       synchronously:YES
+         withResultVerificationBlock:^(NSURLRequest *request, NSHTTPURLResponse *response, NSData *data, NSError *error) {
+             
+          [self assertResponse:response playedForRequest:request withData:data];
+      }];
+}
+
+- (void)testNSURLConnectionAsynchronousPlaybackPOST_ShouldReturnStubbedResponse {
+    
+    NSURLRequest *targetRequest = [self POSTRequestWithPath:@"/post"];
+    
+    [self NSURLConnectionSendRequest:targetRequest
+                       synchronously:NO
+         withResultVerificationBlock:^(NSURLRequest *request, NSHTTPURLResponse *response, NSData *data, NSError *error) {
+             
+          [self assertResponse:response playedForRequest:request withData:data];
+      }];
 }
 
 

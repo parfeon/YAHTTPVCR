@@ -3,6 +3,7 @@
  * @since 1.0.0
  */
 #import "NSURLSessionTask+YHVRecorder.h"
+#import "NSHTTPURLResponse+YHVMisc.h"
 #import "NSURLRequest+YHVPlayer.h"
 #import "YHVMethodsSwizzler.h"
 #import "YHVVCR+Recorder.h"
@@ -18,6 +19,7 @@
 
 - (void)YHV_setError:(id)error;
 - (void)YHV_setResponse:(id)response;
+- (void)YHV_updateCurrentRequest:(NSURLRequest *)request;
 
 #pragma mark -
 
@@ -61,10 +63,7 @@
     NSURLSessionTask *task = (NSURLSessionTask *)self;
     
     if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
-        response = [[NSHTTPURLResponse alloc] initWithURL:task.originalRequest.URL
-                                               statusCode:((NSHTTPURLResponse *)response).statusCode
-                                              HTTPVersion:nil
-                                             headerFields:((NSHTTPURLResponse *)response).allHeaderFields];
+        response = [response YHV_responseForRequest:task.originalRequest];
     }
     
     if (task.originalRequest.YHV_cassetteChapterIdentifier || task.currentRequest.YHV_cassetteChapterIdentifier) {
@@ -74,6 +73,29 @@
     }
     
     [self YHV_setResponse:response];
+}
+
+- (void)YHV_updateCurrentRequest:(NSURLRequest *)request {
+    
+    NSURLSessionTask *task = (NSURLSessionTask *)self;
+    
+    if (request.YHV_cassetteChapterIdentifier && !task.originalRequest.YHV_cassetteChapterIdentifier) {
+        task.originalRequest.YHV_cassetteChapterIdentifier = request.YHV_cassetteChapterIdentifier;
+    }
+    
+    if (request.YHV_usingNSURLSession && !task.originalRequest.YHV_usingNSURLSession) {
+        task.originalRequest.YHV_usingNSURLSession = request.YHV_usingNSURLSession;
+    }
+    
+    if (request.YHV_identifier && !task.originalRequest.YHV_identifier) {
+        task.originalRequest.YHV_identifier = request.YHV_identifier;
+    }
+    
+    if (request.YHV_VCRIgnored && !task.originalRequest.YHV_VCRIgnored) {
+        task.originalRequest.YHV_VCRIgnored = request.YHV_VCRIgnored;
+    }
+    
+    [self YHV_updateCurrentRequest:request];
 }
 
 #pragma mark -

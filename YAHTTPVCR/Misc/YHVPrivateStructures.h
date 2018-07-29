@@ -47,9 +47,4 @@ typedef NS_OPTIONS(NSUInteger, YHVSceneType) {
     YHVClosingScene
 };
 
-/**
- * @brief  Reference on name of key under which stored whether request ignored on purpose or not.
- */
-extern NSString * const kYHVCassetteRequestIgnoreKey;
-
 #endif // YHVPrivateStructures_h

@@ -11,15 +11,7 @@
 #import "YHVScene.h"
 
 
-#pragma mark Constants
-
-/**
- * @brief  Reference on name of key under which stored whether request ignored on purpose or not.
- */
-NSString * const kYHVCassetteRequestIgnoreKey = @"YHVCassetteRequestIgnore";
-
-
-#pragma mark - Protected interface declaration
+#pragma mark Protected interface declaration
 
 @interface YHVCassette ()
 
@@ -37,20 +29,29 @@ NSString * const kYHVCassetteRequestIgnoreKey = @"YHVCassetteRequestIgnore";
 @property (nonatomic, strong) NSMutableArray<NSString *> *completedChaptersIdentifier;
 
 /**
+ * @brief  Stores reference on list of chatpter identifiers for which request has been initiated by \a NSURLConnection.
+ *
+ * @since 1.1.0
+ */
+@property (nonatomic, strong) NSMutableArray<NSString *> *connectionChapterIdentifiers;
+
+/**
  * @brief  Stores whether this should be new cassette or no, because data file doesn't exists at specified location.
  */
 @property (nonatomic, assign, getter = isNewCassette) BOOL newCassette;
+
+/**
+ * @brief  Stores reference on dictionary which maps request identifier to unique identifier under which scene will be stored.
+ *
+ * @since 1.1.0
+ */
+@property (nonatomic, strong) NSMutableDictionary *requestsIdentifiers;
 
 /**
  * @brief  Stores reference on list of chapters which is recorded on cassette.
  * @note   Chapters stored in same order as they has been recorded (event thought, what one of them ends after another already has been started).
  */
 @property (nonatomic, strong) NSArray<NSString *> *chapterIdentifiers;
-
-/**
- * @brief  Stores reference on dictionary which maps task identifier to unique identifier under which scene will be stored.
- */
-@property (nonatomic, strong) NSMutableDictionary *tasksIdentifiers;
 
 /**
  * @brief  Stores reference on queue which is used to serialize access to shared object information.
@@ -295,8 +296,9 @@ NSString * const kYHVCassetteRequestIgnoreKey = @"YHVCassetteRequestIgnore";
     
     if ((self = [super init])) {
         _resourceAccessQueue = dispatch_queue_create("com.yetanotherhttpvcr.cassette", DISPATCH_QUEUE_SERIAL);
+        _connectionChapterIdentifiers = [NSMutableArray new];
         _completedChaptersIdentifier = [NSMutableArray new];
-        _tasksIdentifiers = [NSMutableDictionary new];
+        _requestsIdentifiers = [NSMutableDictionary new];
         _activeClients = [NSMutableDictionary new];
         _configuration = [configuration copy];
         _scenes = [NSMutableArray new];
@@ -411,6 +413,13 @@ NSString * const kYHVCassetteRequestIgnoreKey = @"YHVCassetteRequestIgnore";
 }
 
 - (void)prepareToPlayResponsesWithProtocol:(YHVNSURLProtocol *)protocol {
+
+    if (!protocol.request.YHV_usingNSURLSession) {
+        dispatch_sync(self.resourceAccessQueue, ^{
+            protocol.request.YHV_cassetteChapterIdentifier = [self chapterIdentifierForRequest:protocol.request];
+            [self.connectionChapterIdentifiers addObject:protocol.request.YHV_cassetteChapterIdentifier];
+        });
+    }
     
     dispatch_async(self.resourceAccessQueue, ^{
         NSAssert(protocol.request.YHV_cassetteChapterIdentifier, @"Unable to play response. Unknown request");
@@ -461,12 +470,28 @@ NSString * const kYHVCassetteRequestIgnoreKey = @"YHVCassetteRequestIgnore";
         
         if (scene.type == YHVResponseScene) {
             [protocol.client URLProtocol:protocol didReceiveResponse:(id)scene.data cacheStoragePolicy:NSURLCacheStorageNotAllowed];
+            
+            if ([self.connectionChapterIdentifiers containsObject:chapterIdentifier]) {
+                [self handleResponsePlayedForRequest:protocol.request];
+            }
         } else if (scene.type == YHVDataScene) {
             [protocol.client URLProtocol:protocol didLoadData:(id)scene.data];
+            
+            if ([self.connectionChapterIdentifiers containsObject:chapterIdentifier]) {
+                [self handleDataPlayedForRequest:protocol.request];
+            }
         } else if (scene.type == YHVErrorScene) {
             [protocol.client URLProtocol:protocol didFailWithError:(id)scene.data];
+            
+            if ([self.connectionChapterIdentifiers containsObject:chapterIdentifier]) {
+                [self handleError:(id)scene.data playedForRequest:protocol.request];
+            }
         } else if (scene.type == YHVClosingScene) {
             [protocol.client URLProtocolDidFinishLoading:protocol];
+            
+            if ([self.connectionChapterIdentifiers containsObject:chapterIdentifier]) {
+                [self handleError:nil playedForRequest:protocol.request];
+            }
         }
     });
 }
@@ -496,31 +521,43 @@ NSString * const kYHVCassetteRequestIgnoreKey = @"YHVCassetteRequestIgnore";
 }
 
 - (void)handleRequestPlayedForTask:(NSURLSessionTask *)task {
-    
-    NSString *identifier = task.originalRequest.YHV_cassetteChapterIdentifier ?: task.currentRequest.YHV_cassetteChapterIdentifier;
-    
-    [self markSceneAsPlayed:YHVRequestScene forChapterWithIdentifier:identifier];
+
+    [self handleRequestPlayedForRequest:task.originalRequest];
 }
 
 - (void)handleResponsePlayedForTask:(NSURLSessionTask *)task {
-    
-    NSString *identifier = task.originalRequest.YHV_cassetteChapterIdentifier ?: task.currentRequest.YHV_cassetteChapterIdentifier;
-    
-    [self markSceneAsPlayed:YHVResponseScene forChapterWithIdentifier:identifier];
+
+    [self handleResponsePlayedForRequest:task.originalRequest];
 }
 
 - (void)handleDataPlayedForTask:(NSURLSessionTask *)task {
-    
-    NSString *identifier = task.originalRequest.YHV_cassetteChapterIdentifier ?: task.currentRequest.YHV_cassetteChapterIdentifier;
-    
-    [self markSceneAsPlayed:YHVDataScene forChapterWithIdentifier:identifier];
+
+    [self handleDataPlayedForRequest:task.originalRequest];
 }
 
-- (void)handleError:(nullable NSError *)error playedForTask:(NSURLSessionTask *)task {
-    
-    NSString *identifier = task.originalRequest.YHV_cassetteChapterIdentifier ?: task.currentRequest.YHV_cassetteChapterIdentifier;
-    
-    [self markSceneAsPlayed:(error ? YHVErrorScene : YHVClosingScene) forChapterWithIdentifier:identifier];
+- (void)handleError:(NSError *)error playedForTask:(NSURLSessionTask *)task {
+
+    [self handleError:error playedForRequest:task.originalRequest];
+}
+
+- (void)handleRequestPlayedForRequest:(NSURLRequest *)request {
+
+    [self markSceneAsPlayed:YHVRequestScene forChapterWithIdentifier:request.YHV_cassetteChapterIdentifier];
+}
+
+- (void)handleResponsePlayedForRequest:(NSURLRequest *)request {
+
+    [self markSceneAsPlayed:YHVResponseScene forChapterWithIdentifier:request.YHV_cassetteChapterIdentifier];
+}
+
+- (void)handleDataPlayedForRequest:(NSURLRequest *)request {
+
+    [self markSceneAsPlayed:YHVDataScene forChapterWithIdentifier:request.YHV_cassetteChapterIdentifier];
+}
+
+- (void)handleError:(NSError *)error playedForRequest:(NSURLRequest *)request {
+
+    [self markSceneAsPlayed:(error ? YHVErrorScene : YHVClosingScene) forChapterWithIdentifier:request.YHV_cassetteChapterIdentifier];
 }
 
 - (NSUInteger)nextNotPlayedSceneIndex {
@@ -599,43 +636,70 @@ NSString * const kYHVCassetteRequestIgnoreKey = @"YHVCassetteRequestIgnore";
 #pragma mark - Recording
 
 - (void)beginRecordingTask:(NSURLSessionTask *)task {
-    
-    NSNumber *ignoreflag = ([NSURLProtocol propertyForKey:kYHVCassetteRequestIgnoreKey inRequest:task.originalRequest] ?:
-                            [NSURLProtocol propertyForKey:kYHVCassetteRequestIgnoreKey inRequest:task.currentRequest]);
-    
-    if (ignoreflag || task.originalRequest.YHV_cassetteChapterIdentifier || task.currentRequest.YHV_cassetteChapterIdentifier) {
-        return;
-    }
-    
-    __block NSString *identifier = nil;
-    dispatch_sync(self.resourceAccessQueue, ^{
-        NSAssert(!self.tasksIdentifiers[@(task.taskIdentifier).stringValue],
-                 @"Already tracking task with '%@' identifier.", @(task.taskIdentifier));
-        
-        identifier = [NSUUID UUID].UUIDString;
-        self.tasksIdentifiers[@(task.taskIdentifier).stringValue] = identifier;
-    });
-    
-    NSURLRequest *request = self.configuration.beforeRecordRequest(task.originalRequest);
-    
-    if (request) {
-        [self recordScene:[YHVScene sceneWithIdentifier:identifier type:YHVRequestScene data:request]];
-    }
+
+    task.originalRequest.YHV_identifier = @(task.taskIdentifier).stringValue;
+
+    [self beginRecordingRequest:task.originalRequest];
 }
 
 - (void)recordResponse:(NSURLResponse *)response forTask:(NSURLSessionTask *)task {
+
+    [self recordResponse:response forRequest:task.originalRequest];
+}
+
+- (void)recordData:(NSData *)data forTask:(NSURLSessionTask *)task {
+
+    [self recordData:data forRequest:task.originalRequest];
+}
+
+- (void)recordCompletionWithError:(NSError *)error forTask:(NSURLSessionTask *)task {
+
+    [self recordCompletionWithError:error forRequest:task.originalRequest];
+}
+
+- (void)clearFetchedDataForTask:(NSURLSessionTask *)task {
+
+    [self clearFetchedDataForRequest:task.originalRequest];
+}
+
+
+#pragma mark - Recording request
+
+- (void)beginRecordingRequest:(NSURLRequest *)request {
     
-    NSNumber *ignoreflag = ([NSURLProtocol propertyForKey:kYHVCassetteRequestIgnoreKey inRequest:task.originalRequest] ?:
-                            [NSURLProtocol propertyForKey:kYHVCassetteRequestIgnoreKey inRequest:task.currentRequest]);
-    
-    if (ignoreflag || task.originalRequest.YHV_cassetteChapterIdentifier || task.currentRequest.YHV_cassetteChapterIdentifier) {
+    if (request.YHV_VCRIgnored || request.YHV_cassetteChapterIdentifier) {
         return;
     }
+
+    request.YHV_identifier = request.YHV_identifier ?: [NSUUID UUID].UUIDString;
+    __block NSString *identifier = nil;
     
+    dispatch_sync(self.resourceAccessQueue, ^{
+        NSAssert(!self.requestsIdentifiers[request.YHV_identifier], @"Already tracking request with '%@' identifier.", request.YHV_identifier);
+        
+        identifier = [NSUUID UUID].UUIDString;
+        self.requestsIdentifiers[request.YHV_identifier] = identifier;
+    });
+    
+    NSURLRequest *fiteredRequest = self.configuration.beforeRecordRequest(request);
+    
+    if (fiteredRequest) {
+        [self recordScene:[YHVScene sceneWithIdentifier:identifier type:YHVRequestScene data:fiteredRequest]];
+    }
+}
+
+
+- (void)recordResponse:(NSURLResponse *)response forRequest:(NSURLRequest *)request {
+    
+    if (request.YHV_VCRIgnored || request.YHV_cassetteChapterIdentifier) {
+        return;
+    }
+
     __block YHVScene *requestScene = nil;
     __block NSString *identifier = nil;
+    
     dispatch_sync(self.resourceAccessQueue, ^{
-        identifier = self.tasksIdentifiers[@(task.taskIdentifier).stringValue];
+        identifier = self.requestsIdentifiers[request.YHV_identifier];
         
         for (YHVScene *scene in self.scenes) {
             if ([scene.identifier isEqualToString:identifier] && scene.type == YHVRequestScene) {
@@ -648,27 +712,25 @@ NSString * const kYHVCassetteRequestIgnoreKey = @"YHVCassetteRequestIgnore";
         }
     });
     
-    NSAssert(identifier, @"Unable to record response. Currently doesn't track task with %@ identifier.", @(task.taskIdentifier));
+    NSAssert(identifier, @"Unable to record response. Currently doesn't track request with %@ identifier.", request.YHV_identifier);
     
     NSArray *filteredResponse = self.configuration.beforeRecordResponse((id)requestScene.data, (id)response, nil);
     
     [self recordScene:[YHVScene sceneWithIdentifier:identifier type:YHVResponseScene data:filteredResponse.firstObject]];
 }
 
-- (void)recordData:(NSData *)data forTask:(NSURLSessionTask *)task {
+- (void)recordData:(NSData *)data forRequest:(NSURLRequest *)request {
     
-    NSNumber *ignoreflag = ([NSURLProtocol propertyForKey:kYHVCassetteRequestIgnoreKey inRequest:task.originalRequest] ?:
-                            [NSURLProtocol propertyForKey:kYHVCassetteRequestIgnoreKey inRequest:task.currentRequest]);
-    
-    if (ignoreflag || task.originalRequest.YHV_cassetteChapterIdentifier || task.currentRequest.YHV_cassetteChapterIdentifier) {
+    if (request.YHV_VCRIgnored || request.YHV_cassetteChapterIdentifier) {
         return;
     }
-    
+
     __block YHVScene *responseScene = nil;
     __block YHVScene *requestScene = nil;
     __block NSString *identifier = nil;
+    
     dispatch_sync(self.resourceAccessQueue, ^{
-        identifier = self.tasksIdentifiers[@(task.taskIdentifier).stringValue];
+        identifier = self.requestsIdentifiers[request.YHV_identifier];
         
         for (YHVScene *scene in self.scenes) {
             if ([scene.identifier isEqualToString:identifier]) {
@@ -685,7 +747,7 @@ NSString * const kYHVCassetteRequestIgnoreKey = @"YHVCassetteRequestIgnore";
         }
     });
     
-    NSAssert(identifier, @"Unable to record data. Currently doesn't track task with %@ identifier.", @(task.taskIdentifier));
+    NSAssert(identifier, @"Unable to record data. Currently doesn't track request with %@ identifier.", request.YHV_identifier);
     
     NSArray *filteredResponse = self.configuration.beforeRecordResponse((id)requestScene.data, (id)responseScene.data, data);
     
@@ -694,44 +756,40 @@ NSString * const kYHVCassetteRequestIgnoreKey = @"YHVCassetteRequestIgnore";
     }
 }
 
-- (void)recordCompletionWithError:(NSError *)error forTask:(NSURLSessionTask *)task {
+- (void)recordCompletionWithError:(NSError *)error forRequest:(NSURLRequest *)request {
     
-    NSNumber *ignoreflag = ([NSURLProtocol propertyForKey:kYHVCassetteRequestIgnoreKey inRequest:task.originalRequest] ?:
-                            [NSURLProtocol propertyForKey:kYHVCassetteRequestIgnoreKey inRequest:task.currentRequest]);
-    
-    if (ignoreflag || task.originalRequest.YHV_cassetteChapterIdentifier || task.currentRequest.YHV_cassetteChapterIdentifier) {
+    if (request.YHV_VCRIgnored || request.YHV_cassetteChapterIdentifier) {
         return;
     }
-    
+
     __block NSString *identifier = nil;
     dispatch_sync(self.resourceAccessQueue, ^{
-        identifier = self.tasksIdentifiers[@(task.taskIdentifier).stringValue];
-        [self.tasksIdentifiers removeObjectForKey:@(task.taskIdentifier).stringValue];
+        identifier = self.requestsIdentifiers[request.YHV_identifier];
+        [self.requestsIdentifiers removeObjectForKey:request.YHV_identifier];
     });
     
-    NSAssert(identifier, @"Unable to record %@. Currently doesn't track task with %@ identifier.", (error ? @"error" : @"completion"), @(task.taskIdentifier));
+    NSAssert(identifier, @"Unable to record %@. Currently doesn't track request with %@ identifier.", (error ? @"error" : @"completion"),
+             request.YHV_identifier);
     
     if (error) {
-        error = [self errorForRequest:task.originalRequest withFilteredUserInfo:error];
+        error = [self errorForRequest:request withFilteredUserInfo:error];
     }
     
     [self recordScene:[YHVScene sceneWithIdentifier:identifier type:(error ? YHVErrorScene : YHVClosingScene) data:error]];
 }
 
-- (void)clearFetchedDataForTask:(NSURLSessionTask *)task {
+- (void)clearFetchedDataForRequest:(NSURLRequest *)request {
     
-    if ([NSURLProtocol propertyForKey:kYHVCassetteRequestIgnoreKey inRequest:task.originalRequest] ?:
-        [NSURLProtocol propertyForKey:kYHVCassetteRequestIgnoreKey inRequest:task.currentRequest]) {
-        
+    if (request.YHV_VCRIgnored) {
         return;
     }
-    
+
     __block NSString *identifier = nil;
     dispatch_sync(self.resourceAccessQueue, ^{
-        identifier = self.tasksIdentifiers[@(task.taskIdentifier).stringValue];
+        identifier = self.requestsIdentifiers[request.YHV_identifier];
     });
     
-    NSAssert(identifier, @"Unable clear fetched data. Currently doesn't track task with %@ identifier.", @(task.taskIdentifier));
+    NSAssert(identifier, @"Unable clear fetched data. Currently doesn't track request with %@ identifier.", request.YHV_identifier);
     
     dispatch_async(self.resourceAccessQueue, ^{
         NSMutableArray *dataScenes = [NSMutableArray new];

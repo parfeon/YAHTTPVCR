@@ -70,6 +70,15 @@
  */
 + (void)handleError:(nullable NSError *)error playedForTask:(NSURLSessionTask *)task;
 
+/**
+ * @brief  Confirm request scene playback completion.
+ *
+ * @param request Reference on request for which request scene has been played.
+ *
+ * @since 1.1.0
+ */
++ (void)handleRequestPlayedForRequest:(NSURLRequest *)request;
+
 #pragma mark -
 
 
