@@ -1,3 +1,10 @@
+## [1.1.3](https://github.com/parfeon/YAHTTPVCR/releases/tag/v1.1.3)
+July 31 2018
+
+#### Updated
+- `taskIdentifier` replaced with `NSUUID`.
+  - Updated by [parfeon](https://github.com/parfeon) in Pull Request [#3](https://github.com/parfeon/YAHTTPVCR/pull/3).
+
 ## [1.1.2](https://github.com/parfeon/YAHTTPVCR/releases/tag/v1.1.2)
 July 31 2018
 

@@ -637,8 +637,6 @@
 
 - (void)beginRecordingTask:(NSURLSessionTask *)task {
 
-    task.originalRequest.YHV_identifier = @(task.taskIdentifier).stringValue;
-
     [self beginRecordingRequest:task.originalRequest];
 }
 
