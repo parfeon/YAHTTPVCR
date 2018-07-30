@@ -223,7 +223,7 @@
     NSUInteger requestsCount = self.requests.count;
     BOOL allPlayed = NO;
     
-    if (!self.isWriteProtected) {
+    if (!self.isNewCassette) {
         allPlayed = requestsCount > 0 && [self playCount] == requestsCount;
     }
     

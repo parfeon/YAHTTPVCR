@@ -36,6 +36,13 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly, assign) BOOL allPlayed;
 
 /**
+ * @brief  Stores whether this should be new cassette or no, because data file doesn't exists at specified location.
+ *
+ * @since 1.1.1
+ */
+@property (nonatomic, readonly, assign, getter = isNewCassette) BOOL newCassette;
+
+/**
  * @brief  Stores whether cassette has protection against write or not.
  */
 @property (nonatomic, readonly, assign, getter = isWriteProtected) BOOL writeProtected;
