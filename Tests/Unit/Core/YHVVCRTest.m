@@ -558,6 +558,28 @@
     XCTAssertEqualObjects(data, request.HTTPBody);
 }
 
+- (void)testFilter_ShouldNotUsedBodyFilter_WhenNonPOSTRequestPassed {
+    
+    id urlRequestClassMock = OCMClassMock([NSMutableURLRequest class]);
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"http://localhost/something"]];
+    [request setAllHTTPHeaderFields:@{ @"Content-Type": @"application/text" }];
+    __block BOOL bodyFilterBlockCalled = NO;
+    
+    OCMExpect([urlRequestClassMock setHTTPBody:[OCMArg any]]);
+    
+    [YHVVCR setupWithConfiguration:^(YHVConfiguration *configuration) {
+        configuration.cassettesPath = self.cassettesPath;
+        configuration.postBodyFilter = ^NSData * (NSURLRequest *request) {
+            bodyFilterBlockCalled = YES;
+            return nil;
+        };
+    }];
+    [YHVVCR insertCassetteWithPath:[NSUUID UUID].UUIDString];
+    
+    ((YHVPostBodyFilterBlock)YHVVCR.cassette.configuration.postBodyFilter)(request);
+    XCTAssertFalse(bodyFilterBlockCalled);
+}
+
 - (void)testFilter_ShouldUseVCRBodyFilterBlock_WhenFilterBlockPassedDuringConfiguration {
     
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"http://localhost/something"]];

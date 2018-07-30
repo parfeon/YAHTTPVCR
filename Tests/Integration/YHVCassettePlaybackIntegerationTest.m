@@ -248,54 +248,6 @@
     [self NSURLConnectionSendRequests:requests synchronously:NO withResultVerificationBlock:nil];
 }
 
-- (void)testNSURLConnectionAsynchronousPlaybackGET_ShouldReturnStubbedResponsesChronologically_WhenFewRequestStubbed {
-    
-    NSArray<NSURLRequest *> *requests = @[[self GETRequestWithPath:@"/delay/2"], [self GETRequestWithPath:@"/get"]];
-    __block NSTimeInterval delayCompletionDate = 0;
-    __block NSTimeInterval getCompletionDate = 0;
-    
-    [self NSURLConnectionSendRequests:requests
-                        synchronously:NO
-          withResultVerificationBlock:^(NSURLRequest *request, NSHTTPURLResponse *response, NSData *data, NSError *error) {
-           
-        if ([request.URL.path isEqualToString:requests.firstObject.URL.path]) {
-            delayCompletionDate = [NSDate date].timeIntervalSince1970;
-            
-            [self assertResponse:response playedForRequest:request withData:data];
-        } else {
-            getCompletionDate = [NSDate date].timeIntervalSince1970;
-            
-            [self assertResponse:response playedForRequest:request withData:data];
-        }
-    }];
-    
-    XCTAssertGreaterThan(delayCompletionDate, getCompletionDate);
-}
-
-- (void)testNSURLConnectionAsynchronousPlaybackGET_ShouldReturnStubbedResponsesMomentary_WhenFewRequestStubbed {
-    
-    NSArray<NSURLRequest *> *requests = @[[self GETRequestWithPath:@"/delay/2"], [self GETRequestWithPath:@"/get"]];
-    __block NSTimeInterval delayCompletionDate = 0;
-    __block NSTimeInterval getCompletionDate = 0;
-    
-    [self NSURLConnectionSendRequests:requests
-                        synchronously:NO
-          withResultVerificationBlock:^(NSURLRequest *request, NSHTTPURLResponse *response, NSData *data, NSError *error) {
-           
-        if ([request.URL.path isEqualToString:requests.firstObject.URL.path]) {
-            delayCompletionDate = [NSDate date].timeIntervalSince1970;
-            
-            [self assertResponse:response playedForRequest:request withData:data];
-        } else {
-            getCompletionDate = [NSDate date].timeIntervalSince1970;
-            
-            [self assertResponse:response playedForRequest:request withData:data];
-        }
-    }];
-    
-    XCTAssertTrue(delayCompletionDate <= getCompletionDate);
-}
-
 - (void)testNSURLConnectionAsynchronousPlaybackGET_ShouldReturnStubbedResponse_WhenRecordedRedirects {
     
     NSURLRequest *targetRequest = [self GETRequestWithPath:@"/absolute-redirect/3"];
