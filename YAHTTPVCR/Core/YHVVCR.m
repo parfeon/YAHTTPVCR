@@ -642,14 +642,19 @@ NS_ASSUME_NONNULL_END
 - (YHVPostBodyFilterBlock)createPOSTBodyFilterBlockWithConfiguration:(YHVConfiguration *)configuration {
     
     id postBodyFilter = configuration.postBodyFilter ?: self.sharedConfiguration.postBodyFilter;
+    NSDictionary *bodyKeysForModification = nil;
     
-    if (![postBodyFilter isKindOfClass:[NSDictionary class]]) {
-        return postBodyFilter;
+    if ([postBodyFilter isKindOfClass:[NSDictionary class]]) {
+        bodyKeysForModification = [postBodyFilter copy];
     }
     
-    NSDictionary *bodyKeysForModification = [postBodyFilter copy];
-    
     return ^NSData * (NSURLRequest *request) {
+        if (![request.HTTPMethod.lowercaseString isEqualToString:@"post"]) {
+            return request.HTTPBody;
+        } else if (postBodyFilter && !bodyKeysForModification) {
+            return ((YHVPostBodyFilterBlock)postBodyFilter)(request);
+        }
+        
         NSMutableDictionary *keyValue = [[NSDictionary YHV_dictionaryFromNSURLRequestPOSTBody:request] mutableCopy];
         
         if (!keyValue) {

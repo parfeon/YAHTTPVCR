@@ -1,3 +1,10 @@
+## [1.1.2](https://github.com/parfeon/YAHTTPVCR/releases/tag/v1.1.2)
+July 31 2018
+
+#### Fixed
+- `postBodyFilter` should be used only for POST requests.
+  - Fixed by [parfeon](https://github.com/parfeon) in Pull Request [#2](https://github.com/parfeon/YAHTTPVCR/pull/2).
+
 ## [1.1.1](https://github.com/parfeon/YAHTTPVCR/releases/tag/v1.1.1)
 July 30 2018
 
