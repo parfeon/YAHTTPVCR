@@ -246,7 +246,7 @@
         return;
     }
     
-    if (YHVVCR.cassette && !YHVVCR.cassette.isWriteProtected) {
+    if (YHVVCR.cassette && !YHVVCR.cassette.isNewCassette) {
         XCTAssertTrue(YHVVCR.cassette.allPlayed);
     }
 }
@@ -306,7 +306,7 @@
         return;
     }
     
-    if (YHVVCR.cassette && !YHVVCR.cassette.isWriteProtected) {
+    if (YHVVCR.cassette && !YHVVCR.cassette.isNewCassette) {
         XCTAssertTrue(YHVVCR.cassette.allPlayed);
     }
 }

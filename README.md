@@ -328,6 +328,10 @@ Contains number of fully stubbed requests - those for which response and data ha
 
 Whether cassette has been played to end of tape or not.
 
+##### [`@property (nonatomic, readonly, assign, getter = isNewCassette) BOOL newCassette`](#property-nonatomic-readonly-assign-getter--isnewcassette-bool-newcassette)
+
+Whether this is new cassette or not. If cassette is new, part of record limitations doesn't apply.
+
 ##### [`@property (nonatomic, readonly, assign, getter = isWriteProtected) BOOL writeProtected`](#property-nonatomic-readonly-assign-getter--iswriteprotected-bool-writeprotected)
 
 Whether new requests can be written onto cassette or not. Only existing cassettes with `YHVRecordOnce` recording mode and `YHVRecordNone` may cause this property to return **YES**.
