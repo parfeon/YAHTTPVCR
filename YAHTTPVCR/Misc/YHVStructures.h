@@ -2,7 +2,7 @@
  * @brief Set of types and structures which is used by VCR and it's components.
  *
  * @author Serhii Mamontov
- * @version 1.0.0
+ * @since 1.0.0
  */
 #ifndef YHVStructures_h
 #define YHVStructures_h
@@ -163,10 +163,13 @@ typedef void(^YHVHeadersFilterBlock)(NSURLRequest *request, NSMutableDictionary 
  * @brief Request POST body filter block.
  *
  * @param request Reference on request for which POST body filtering has been performed.
+ * @param body    Reference on data which should be filtered.
  *
  * @return Reference on value which should be used instead of original one or \c nil in case if POST body should be removed.
+ *
+ * @since 1.2.0
  */
-typedef NSData * __nullable (^YHVPostBodyFilterBlock)(NSURLRequest *request);
+typedef NSData * __nullable (^YHVPostBodyFilterBlock)(NSURLRequest *request, NSData * __nullable body);
 
 /**
  * @brief Response body filter block.

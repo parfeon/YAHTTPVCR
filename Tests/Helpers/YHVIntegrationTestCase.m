@@ -59,6 +59,14 @@
 @implementation YHVIntegrationTestCase
 
 
+#pragma mark - Information
+
+- (NSDictionary *)filteredPOSTBody {
+    
+    return self.expectedPostBody;
+}
+
+
 #pragma mark - Configuration
 
 - (void)updateVCRConfigurationFromDefaultConfiguration:(YHVConfiguration *)configuration {

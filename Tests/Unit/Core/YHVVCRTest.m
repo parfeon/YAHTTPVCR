@@ -511,7 +511,7 @@
     }];
     [YHVVCR insertCassetteWithPath:[NSUUID UUID].UUIDString];
     
-    NSData *data = ((YHVPostBodyFilterBlock)YHVVCR.cassette.configuration.postBodyFilter)(request);
+    NSData *data = ((YHVPostBodyFilterBlock)YHVVCR.cassette.configuration.postBodyFilter)(request, request.HTTPBody);
     NSDictionary *jsonData = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingAllowFragments error:nil];
     XCTAssertNotNil(data);
     XCTAssertNotEqualObjects(data, request.HTTPBody);
@@ -532,7 +532,7 @@
     }];
     [YHVVCR insertCassetteWithPath:[NSUUID UUID].UUIDString];
     
-    NSData *data = ((YHVPostBodyFilterBlock)YHVVCR.cassette.configuration.postBodyFilter)(request);
+    NSData *data = ((YHVPostBodyFilterBlock)YHVVCR.cassette.configuration.postBodyFilter)(request, request.HTTPBody);
     NSString *postBodyString = [[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"+" withString:@" "];
     NSDictionary *dataDictionary = [NSDictionary YHV_dictionaryWithQuery:postBodyString];
     XCTAssertNotNil(data);
@@ -554,7 +554,7 @@
     }];
     [YHVVCR insertCassetteWithPath:[NSUUID UUID].UUIDString];
     
-    NSData *data = ((YHVPostBodyFilterBlock)YHVVCR.cassette.configuration.postBodyFilter)(request);
+    NSData *data = ((YHVPostBodyFilterBlock)YHVVCR.cassette.configuration.postBodyFilter)(request, request.HTTPBody);
     XCTAssertEqualObjects(data, request.HTTPBody);
 }
 
@@ -576,7 +576,7 @@
     }];
     [YHVVCR insertCassetteWithPath:[NSUUID UUID].UUIDString];
     
-    ((YHVPostBodyFilterBlock)YHVVCR.cassette.configuration.postBodyFilter)(request);
+    ((YHVPostBodyFilterBlock)YHVVCR.cassette.configuration.postBodyFilter)(request, request.HTTPBody);
     XCTAssertFalse(bodyFilterBlockCalled);
 }
 
@@ -597,7 +597,7 @@
     }];
     [YHVVCR insertCassetteWithPath:[NSUUID UUID].UUIDString];
     
-    ((YHVPostBodyFilterBlock)YHVVCR.cassette.configuration.postBodyFilter)(request);
+    ((YHVPostBodyFilterBlock)YHVVCR.cassette.configuration.postBodyFilter)(request, request.HTTPBody);
     XCTAssertTrue(bodyFilterBlockCalled);
 }
 
@@ -625,7 +625,7 @@
         };
     }];
     
-    ((YHVPostBodyFilterBlock)YHVVCR.cassette.configuration.postBodyFilter)(request);
+    ((YHVPostBodyFilterBlock)YHVVCR.cassette.configuration.postBodyFilter)(request, request.HTTPBody);
     XCTAssertTrue(cassetteBodyFilterBlockCalled);
     XCTAssertFalse(vcrBodyFilterBlockCalled);
 }

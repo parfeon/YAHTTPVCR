@@ -1,3 +1,10 @@
+## [1.2.0](https://github.com/parfeon/YAHTTPVCR/releases/tag/v1.2.0)
+July 31 2018
+
+#### Updated
+- `postBodyFilter` now accept body parameter which will pass body from request or it's stub.
+  - Updated by [parfeon](https://github.com/parfeon) in Pull Request [#4](https://github.com/parfeon/YAHTTPVCR/pull/4).
+
 ## [1.1.3](https://github.com/parfeon/YAHTTPVCR/releases/tag/v1.1.3)
 July 31 2018
 

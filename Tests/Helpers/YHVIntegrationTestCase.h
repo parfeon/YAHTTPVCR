@@ -16,6 +16,7 @@ typedef void(^YHVVerificationBlock)(NSURLRequest *request, NSHTTPURLResponse * _
 #pragma mark - Information
 
 @property (nonatomic, readonly, copy) NSString *queryString;
+@property (nonatomic, readonly, copy) NSDictionary *filteredPOSTBody;
 
 
 #pragma mark - Request configuration

@@ -45,6 +45,14 @@
             return request;
         };
     }
+    
+    if ([self.name rangeOfString:@"POSTDataToBodyFilter"].location != NSNotFound) {
+        configuration.postBodyFilter = ^NSData * (NSURLRequest *request, NSData *body) {
+            XCTAssertNotNil(body);
+            
+            return [NSJSONSerialization dataWithJSONObject:[self filteredPOSTBody] options:(NSJSONWritingOptions)0 error:nil];
+        };
+    }
 }
 
 
@@ -277,6 +285,17 @@
 #pragma mark - Tests :: Playback :: NSURLSession :: POST
 
 - (void)testNSURLSessionPlaybackPOST_ShouldReturnStubbedResponse {
+    
+    NSURLRequest *targetRequest = [self POSTRequestWithPath:@"/post"];
+    
+    [self NSURLSessionSendRequest:targetRequest
+      withResultVerificationBlock:^(NSURLRequest *request, NSHTTPURLResponse *response, NSData *data, NSError *error) {
+          
+          [self assertResponse:response playedForRequest:request withData:data];
+      }];
+}
+
+- (void)testNSURLSessionPlaybackPOST_ShouldPassStubbedPOSTDataToBodyFilter {
     
     NSURLRequest *targetRequest = [self POSTRequestWithPath:@"/post"];
     
