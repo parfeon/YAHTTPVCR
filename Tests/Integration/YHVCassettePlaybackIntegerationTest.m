@@ -65,6 +65,18 @@
     [self NSURLSessionSendRequest:targetRequest
       withResultVerificationBlock:^(NSURLRequest *request, NSHTTPURLResponse *response, NSData *data, NSError *error) {
           
+          [self assertResponse:response playedForRequest:request withData:data];
+      }];
+}
+
+- (void)testNSURLSessionPlaybackGET_ShouldReturnStubbedResponse_WhenStubRecordedWithEmptyData {
+    
+    NSMutableURLRequest *targetRequest = [[self GETRequestWithPath:@"/get"] mutableCopy];
+    targetRequest.timeoutInterval = 1.f;
+    
+    [self NSURLSessionSendRequest:targetRequest
+      withResultVerificationBlock:^(NSURLRequest *request, NSHTTPURLResponse *response, NSData *data, NSError *error) {
+          
         [self assertResponse:response playedForRequest:request withData:data];
     }];
 }

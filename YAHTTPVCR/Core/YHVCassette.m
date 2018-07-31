@@ -475,9 +475,13 @@
                 [self handleResponsePlayedForRequest:protocol.request];
             }
         } else if (scene.type == YHVDataScene) {
-            [protocol.client URLProtocol:protocol didLoadData:(id)scene.data];
+            NSData *data = (id)scene.data;
             
-            if ([self.connectionChapterIdentifiers containsObject:chapterIdentifier]) {
+            if (data.length) {
+                [protocol.client URLProtocol:protocol didLoadData:data];
+            }
+            
+            if (!data.length || [self.connectionChapterIdentifiers containsObject:chapterIdentifier]) {
                 [self handleDataPlayedForRequest:protocol.request];
             }
         } else if (scene.type == YHVErrorScene) {

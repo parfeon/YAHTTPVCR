@@ -1,3 +1,10 @@
+## [1.2.2](https://github.com/parfeon/YAHTTPVCR/releases/tag/v1.2.2)
+August 1 2018
+
+#### Fixed
+- Fixed empty response body playback.
+  - Fixed by [parfeon](https://github.com/parfeon) in Pull Request [#6](https://github.com/parfeon/YAHTTPVCR/pull/6).
+
 ## [1.2.1](https://github.com/parfeon/YAHTTPVCR/releases/tag/v1.2.1)
 August 1 2018
 
