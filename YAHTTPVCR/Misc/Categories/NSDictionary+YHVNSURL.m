@@ -61,7 +61,10 @@
                 value = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
             }
         }
-        value = [value stringByAddingPercentEncodingWithAllowedCharacters:charSet];
+        
+        if ([value isKindOfClass:[NSString class]]) {
+            value = [value stringByAddingPercentEncodingWithAllowedCharacters:charSet];
+        }
         
         [keyValuePairs addObject:[@[key, @"=", value] componentsJoinedByString:@""]];
     }
