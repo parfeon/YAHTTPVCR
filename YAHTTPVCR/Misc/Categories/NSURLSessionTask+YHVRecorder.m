@@ -62,13 +62,11 @@
     
     NSURLSessionTask *task = (NSURLSessionTask *)self;
     
-    if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
-        response = [response YHV_responseForRequest:task.originalRequest];
-    }
-    
-    if (task.originalRequest.YHV_cassetteChapterIdentifier || task.currentRequest.YHV_cassetteChapterIdentifier) {
-        [YHVVCR handleResponsePlayedForTask:task];
-    } else {
+    if (!task.originalRequest.YHV_cassetteChapterIdentifier && !task.currentRequest.YHV_cassetteChapterIdentifier) {
+        if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
+            response = [response YHV_responseForRequest:task.originalRequest];
+        }
+        
         [YHVVCR recordResponse:response forTask:task];
     }
     
