@@ -1,3 +1,10 @@
+## [1.2.3](https://github.com/parfeon/YAHTTPVCR/releases/tag/v1.2.3)
+August 1 2018
+
+#### Fixed
+- Fixed `NSDictionary` category for query string generation.
+  - Fixed by [parfeon](https://github.com/parfeon) in Pull Request [#7](https://github.com/parfeon/YAHTTPVCR/pull/7).
+
 ## [1.2.2](https://github.com/parfeon/YAHTTPVCR/releases/tag/v1.2.2)
 August 1 2018
 

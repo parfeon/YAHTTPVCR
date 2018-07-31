@@ -45,7 +45,7 @@
     [super setUp];
     
     NSCharacterSet *charSet = [NSCharacterSet URLQueryAllowedCharacterSet];
-    self.regularQueryString = @"test1=value1&test2=value2&test3=value3";
+    self.regularQueryString = @"test1=value1&test2=value2&test3=3";
     self.queryStringWithMissingValue = @"test1=value1&test2=&test3=value3";
     self.queryStringWithMissingEqualSign = @"test1=value1&test2=value2&test3";
     self.queryStringWithJSONStringValue = @"test1=value1&test2={\"title\":\"yet another http vcr\"}&test3=value3";
@@ -57,7 +57,7 @@
     self.queryStringWithJSONStringValue = [self.queryStringWithJSONStringValue stringByAddingPercentEncodingWithAllowedCharacters:charSet];
     self.wwwFormURLEncodedString = [self.wwwFormURLEncodedString stringByAddingPercentEncodingWithAllowedCharacters:charSet];
     
-    self.expectedForRegularQuery = @{ @"test1": @"value1", @"test2": @"value2", @"test3": @"value3" };
+    self.expectedForRegularQuery = @{ @"test1": @"value1", @"test2": @"value2", @"test3": @3 };
     self.expectedForQueryWithMissingValue = @{ @"test1": @"value1", @"test3": @"value3" };
     self.expectedForQueryWithMissingEqualSign = @{ @"test1": @"value1", @"test2": @"value2" };
     self.expectedForQueryWithJSONStringValue = @{ @"test1": @"value1", @"test2": @{ @"title" : @"yet another http vcr" }, @"test3": @"value3" };
