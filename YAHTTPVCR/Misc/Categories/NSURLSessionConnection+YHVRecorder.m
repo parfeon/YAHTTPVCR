@@ -3,6 +3,7 @@
  * @since 1.0.0
  */
 #import "NSURLSessionConnection+YHVRecorder.h"
+#import "NSHTTPURLResponse+YHVMisc.h"
 #import "NSURLRequest+YHVPlayer.h"
 #import "YHVMethodsSwizzler.h"
 #import "YHVVCR+Recorder.h"
@@ -27,6 +28,7 @@
 
 - (id)YHV_initWithTask:(id)arg1 delegate:(id)arg2 delegateQueue:(id)arg3;
 - (void)YHV__redirectRequest:(id)request redirectResponse:(id)response completion:(id)block;
+- (void)YHV__didReceiveResponse:(NSURLResponse *)response sniff:(BOOL)sniff;
 - (void)YHV__didReceiveData:(id)data;
 
 #pragma mark -
@@ -74,6 +76,19 @@
     [YHVVCR clearFetchedDataForTask:self.task];
     
     [self YHV__redirectRequest:request redirectResponse:response completion:block];
+}
+
+- (void)YHV__didReceiveResponse:(NSURLResponse *)response sniff:(BOOL)sniff {
+
+    if (self.task.originalRequest.YHV_cassetteChapterIdentifier || self.task.currentRequest.YHV_cassetteChapterIdentifier) {
+        if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
+            response = [(NSHTTPURLResponse *)response YHV_responseForRequest:self.task.originalRequest];
+        }
+        
+        [YHVVCR handleResponsePlayedForTask:self.task];
+    }
+    
+    [self YHV__didReceiveResponse:response sniff:sniff];
 }
 
 - (void)YHV__didReceiveData:(id)data {

@@ -1,3 +1,10 @@
+## [1.2.1](https://github.com/parfeon/YAHTTPVCR/releases/tag/v1.2.1)
+August 1 2018
+
+#### Fixed
+- Fixed set response VCR handler.
+  - Fixed by [parfeon](https://github.com/parfeon) in Pull Request [#5](https://github.com/parfeon/YAHTTPVCR/pull/5).
+
 ## [1.2.0](https://github.com/parfeon/YAHTTPVCR/releases/tag/v1.2.0)
 July 31 2018
 
