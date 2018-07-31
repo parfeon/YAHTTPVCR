@@ -153,8 +153,8 @@ configuration.postBodyFilter = @{ @"fullName": [NSNull null], @"pwd": @"pwd" };
  * In example below, we replace 'sender:alex' string in POST body with 
  * 'sender:bob' which will be part of stored stub.
  */
-configuration.postBodyFilter = ^NSData * (NSURLRequest *request) {
-    NSString *message = [[NSString alloc] initWithData:request.HTTPBody encoding:NSUTF8StringEncoding];
+configuration.postBodyFilter = ^NSData * (NSURLRequest *request, NSData *body) {
+    NSString *message = [[NSString alloc] initWithData:body encoding:NSUTF8StringEncoding];
     message = [request.URI.path stringByReplacingOccurrencesOfString:@"sender:alex" withString:@"sender:bob"];
 
     return [message dataUsingEncoding:NSUTF8StringEncoding];

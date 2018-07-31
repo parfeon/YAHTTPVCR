@@ -513,7 +513,7 @@ NS_ASSUME_NONNULL_END
         finalRequest.URL = configuration.urlFilter(finalRequest, finalRequest.URL);
         
         if (configuration.postBodyFilter) {
-            finalRequest.HTTPBody = ((YHVPostBodyFilterBlock)configuration.postBodyFilter)(finalRequest);
+            finalRequest.HTTPBody = ((YHVPostBodyFilterBlock)configuration.postBodyFilter)(finalRequest, finalRequest.YHV_HTTPBody);
         }
         
         NSURLRequest *updatedRequest = beforeRecordRequest ? beforeRecordRequest(finalRequest) : finalRequest;
@@ -648,17 +648,17 @@ NS_ASSUME_NONNULL_END
         bodyKeysForModification = [postBodyFilter copy];
     }
     
-    return ^NSData * (NSURLRequest *request) {
+    return ^NSData * (NSURLRequest *request, NSData *body) {
         if (![request.HTTPMethod.lowercaseString isEqualToString:@"post"]) {
-            return request.HTTPBody;
+            return body;
         } else if (postBodyFilter && !bodyKeysForModification) {
-            return ((YHVPostBodyFilterBlock)postBodyFilter)(request);
+            return ((YHVPostBodyFilterBlock)postBodyFilter)(request, body);
         }
         
         NSMutableDictionary *keyValue = [[NSDictionary YHV_dictionaryFromNSURLRequestPOSTBody:request] mutableCopy];
         
         if (!keyValue) {
-            return request.HTTPBody;
+            return body;
         }
         
         return [[keyValue YHV_replaceValuesWithValuesFromDictionary:bodyKeysForModification] YHV_POSTBodyForNSURLRequest:request];
