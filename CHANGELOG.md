@@ -1,3 +1,20 @@
+## [1.3.0](https://github.com/parfeon/YAHTTPVCR/releases/tag/v1.3.0)
+August 20 2018
+
+#### Updated
+- Cassette's scene playback logic based on callback from NSURL loading system.
+  - Updated by [parfeon](https://github.com/parfeon) in Pull Request [#8](https://github.com/parfeon/YAHTTPVCR/pull/8).
+
+#### Fixed
+- Fixed `YHVTestCase` helper cassette's path generation.
+  - Fixed by [parfeon](https://github.com/parfeon) in Pull Request [#8](https://github.com/parfeon/YAHTTPVCR/pull/8).
+- Fixed issue with requests from another cassettes playback during cassettes switch.
+  - Fixed by [parfeon](https://github.com/parfeon) in Pull Request [#8](https://github.com/parfeon/YAHTTPVCR/pull/8).
+- Fixed code responsible for request's mock search.
+  - Fixed by [parfeon](https://github.com/parfeon) in Pull Request [#8](https://github.com/parfeon/YAHTTPVCR/pull/8).
+- Fixed stalled mock data playback (when previous responses not received by consumer).
+  - Fixed by [parfeon](https://github.com/parfeon) in Pull Request [#8](https://github.com/parfeon/YAHTTPVCR/pull/8).
+
 ## [1.2.3](https://github.com/parfeon/YAHTTPVCR/releases/tag/v1.2.3)
 August 1 2018
 

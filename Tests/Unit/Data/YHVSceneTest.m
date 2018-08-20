@@ -262,6 +262,20 @@
 }
 
 
+#pragma mark - Tests :: Description
+
+- (void)testDescription_ShouldProvideCustomizedDescription {
+    
+    YHVScene *scene = [self sceneForObject:self.expectedError withType:YHVErrorScene];
+    NSString *description = [scene description];
+    
+    XCTAssertNotEqual([description rangeOfString:@"YHVErrorScene"].location, NSNotFound);
+    XCTAssertNotEqual([description rangeOfString:@"type:"].location, NSNotFound);
+    XCTAssertNotEqual([description rangeOfString:@"played:"].location, NSNotFound);
+    XCTAssertNotEqual([description rangeOfString:@"playing:"].location, NSNotFound);
+}
+
+
 #pragma mark - Misc
 
 - (NSDictionary *)sceneDictionaryRepresentationForObject:(id<YHVSerializableDataProtocol>)object withType:(YHVSceneType)type {

@@ -346,7 +346,6 @@ NS_ASSUME_NONNULL_END
     NSAssert(configuration.cassettePath.length, @"Cassette insertion error. Cassette path is empty or nil.");
     
     dispatch_sync(self.resourceAccessQueue, ^{
-        
         configuration = [self sharedConfigurationMergedWith:configuration];
         configuration.playbackMode = isDefault ? self.sharedConfiguration.playbackMode : configuration.playbackMode;
         configuration.recordMode = isDefault ? self.sharedConfiguration.recordMode : configuration.recordMode;
@@ -500,7 +499,7 @@ NS_ASSUME_NONNULL_END
             request.YHV_VCRIgnored = YES;
             return nil;
         }
-        
+
         NSMutableURLRequest *finalRequest = [request mutableCopy];
         
         if (configuration.headersFilter) {
@@ -518,7 +517,7 @@ NS_ASSUME_NONNULL_END
         
         NSURLRequest *updatedRequest = beforeRecordRequest ? beforeRecordRequest(finalRequest) : finalRequest;
         request.YHV_VCRIgnored = !updatedRequest;
-        
+
         return updatedRequest;
     };
 }
@@ -589,8 +588,9 @@ NS_ASSUME_NONNULL_END
         finalRequest.URL = url;
         
         if (configuration.pathFilter) {
-            NSString *pathComponent = configuration.pathFilter(finalRequest);
-            finalRequest.URL = [NSURL URLWithString:[url.absoluteString stringByReplacingOccurrencesOfString:url.path withString:pathComponent]];
+            NSURLComponents *urlComponents = [NSURLComponents componentsWithString:finalRequest.URL.absoluteString];
+            urlComponents.path = configuration.pathFilter(finalRequest);
+            finalRequest.URL = urlComponents.URL;
         }
         
         if (configuration.queryParametersFilter) {

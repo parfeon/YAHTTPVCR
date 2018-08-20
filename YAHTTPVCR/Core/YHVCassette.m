@@ -74,9 +74,23 @@
 @property (nonatomic, assign, getter = isDirty) BOOL dirty;
 
 /**
+ * @brief  Stores reference on currently active scene.
+ *
+ * @since 1.3.0
+ */
+@property (nonatomic, strong) YHVScene *currentScene;
+
+/**
  * @brief  Stores whether cassette's chapters playback started or not.
  */
 @property (nonatomic, assign) BOOL playbackStarted;
+
+/**
+ * @brief  Stores reference on unique cassette's identifier.
+ *
+ * @since 1.3.0
+ */
+@property (nonatomic, copy) NSString *identifier;
 
 
 #pragma mark - Initialization and Configuration
@@ -110,8 +124,50 @@
  *
  * @param sceneType  Reference on one of \b YHVSceneType enum fields which specift type of data shown on scene.
  * @param identifier Reference on unique chapyer identifier to which played scene belongs.
+ * @param useQueue   Whether state should be updated synchronously on private queue or not.
  */
-- (void)markSceneAsPlayed:(YHVSceneType)sceneType forChapterWithIdentifier:(NSString *)identifier;
+- (void)markSceneAsPlayed:(YHVSceneType)sceneType forChapterWithIdentifier:(NSString *)identifier onQueue:(BOOL)useQueue;
+
+/**
+ * @brief  Confirm request scene playback completion.
+ *
+ * @param request  Reference on request for which request scene has been played.
+ * @param useQueue Whether request playback should be handled on private queue or not.
+ *
+ * @since 1.3.0
+ */
+- (void)handleRequestPlayedForRequest:(NSURLRequest *)request onQueue:(BOOL)useQueue;
+
+/**
+ * @brief  Confirm response scene playback completion.
+ *
+ * @param request  Reference on request for which response scene has been played.
+ * @param useQueue Whether response playback should be handled on private queue or not.
+ *
+ * @since 1.3.0
+ */
+- (void)handleResponsePlayedForRequest:(NSURLRequest *)request onQueue:(BOOL)useQueue;
+
+/**
+ * @brief  Confirm data scene playback completion.
+ *
+ * @param request  Reference on request for which data scene has been played.
+ * @param useQueue Whether data playback should be handled on private queue or not.
+ *
+ * @since 1.3.0
+ */
+- (void)handleDataPlayedForRequest:(NSURLRequest *)request onQueue:(BOOL)useQueue;
+
+/**
+ * @brief  Confirm error scene playback completion.
+ *
+ * @param error    Reference on error object from played scene.
+ * @param request  Reference on request for which data scene has been played.
+ * @param useQueue Whether error playback should be handled on private queue or not.
+ *
+ * @since 1.3.0
+ */
+- (void)handleError:(nullable NSError *)error playedForRequest:(NSURLRequest *)request onQueue:(BOOL)useQueue;
 
 /**
  * @brief  Retrieve index of scene which not played yet.
@@ -147,6 +203,15 @@
  */
 - (nullable NSString *)chapterIdentifierForRequest:(NSURLRequest *)request;
 
+/**
+ * @brief  Retrieve reference on not played scene of specified \c type fo specific chapter.
+ *
+ * @param type       One of type fields from \b YHVSceneType enum which specify scene data type.
+ * @param identifier Reference on unique identifier of chapter inside of which scene search should be performed.
+ *
+ * @return Reference on scene if it has been found.
+ */
+- (nullable YHVScene *)sceneWithType:(YHVSceneType)type forChapter:(NSString *)identifier;
 
 
 #pragma mark - Recording
@@ -300,6 +365,7 @@
         _completedChaptersIdentifier = [NSMutableArray new];
         _requestsIdentifiers = [NSMutableDictionary new];
         _activeClients = [NSMutableDictionary new];
+        _identifier = [NSUUID UUID].UUIDString;
         _configuration = [configuration copy];
         _scenes = [NSMutableArray new];
         
@@ -395,29 +461,51 @@
 
 - (BOOL)canPlayResponseForRequest:(NSURLRequest *)request {
     
-    if (self.configuration.recordMode == YHVRecordAll) {
+    NSString *requestCassetteIdentifier = request.YHV_cassetteIdentifier;
+    
+    if (!requestCassetteIdentifier) {
+        request.YHV_cassetteIdentifier = self.identifier;
+    }
+    
+    if ((requestCassetteIdentifier && ![requestCassetteIdentifier isEqualToString:self.identifier]) || self.configuration.recordMode == YHVRecordAll) {
         return NO;
     }
     
-    __block BOOL canPlayResponse = NO;
-    dispatch_sync(self.resourceAccessQueue, ^{
-        NSString *chapterIdentifier = [self chapterIdentifierForRequest:request];
-        canPlayResponse = chapterIdentifier != nil;
-        
-        if (canPlayResponse) {
-            request.YHV_cassetteChapterIdentifier = chapterIdentifier;
-        }
-    });
+    __block BOOL canPlayResponse = request.YHV_cassetteChapterIdentifier != nil;
+    
+    if (!canPlayResponse) {
+        dispatch_sync(self.resourceAccessQueue, ^{
+            NSString *chapterIdentifier = [self chapterIdentifierForRequest:request];
+            canPlayResponse = chapterIdentifier != nil;
+            
+            if (canPlayResponse) {
+                request.YHV_cassetteChapterIdentifier = chapterIdentifier;
+                request.YHV_cassetteIdentifier = self.identifier;
+                
+                [[self sceneWithType:YHVRequestScene forChapter:chapterIdentifier] setPlaying];
+            }
+        });
+    }
     
     return canPlayResponse;
 }
 
 - (void)prepareToPlayResponsesWithProtocol:(YHVNSURLProtocol *)protocol {
-
+    
     if (!protocol.request.YHV_usingNSURLSession) {
         dispatch_sync(self.resourceAccessQueue, ^{
-            protocol.request.YHV_cassetteChapterIdentifier = [self chapterIdentifierForRequest:protocol.request];
-            [self.connectionChapterIdentifiers addObject:protocol.request.YHV_cassetteChapterIdentifier];
+            BOOL canPlayResponse = !protocol.request.YHV_cassetteChapterIdentifier;
+            
+            if (![self.connectionChapterIdentifiers containsObject:protocol.request.YHV_cassetteChapterIdentifier]) {
+                [self.connectionChapterIdentifiers addObject:protocol.request.YHV_cassetteChapterIdentifier];
+            }
+            
+            if (canPlayResponse) {
+                protocol.request.YHV_cassetteChapterIdentifier = [self chapterIdentifierForRequest:protocol.request];
+                protocol.request.YHV_cassetteIdentifier = self.identifier;
+                
+                [[self sceneWithType:YHVRequestScene forChapter:protocol.request.YHV_cassetteChapterIdentifier] setPlaying];
+            }
         });
     }
     
@@ -431,17 +519,28 @@
 
 - (void)playResponsesForRequest:(NSURLRequest *)request {
     
+    // Ignore requests verified for other cassette (in case if cassettes has been switched w/o waiting for requests completion).
+    if (request.YHV_cassetteIdentifier && ![request.YHV_cassetteIdentifier isEqualToString:self.identifier]) {
+        return;
+    }
+    
     [self playResponsesForChapterWithIdentifier:request.YHV_cassetteChapterIdentifier];
 }
 
 - (void)playResponsesForChapterWithIdentifier:(NSString *)chapterIdentifier {
     
     __block BOOL readyToPlayScenesForChapter = NO;
+    __block NSString *nextChapterIdentifier = nil;
     __block BOOL waitingForAnotherChapter = NO;
     __block BOOL chapterPlayed = NO;
+    __block BOOL canPlayScene = NO;
     __block YHVScene *scene = nil;
     
     dispatch_sync(self.resourceAccessQueue, ^{
+        if (self.currentScene) {
+            return;
+        }
+        
         chapterPlayed = [self.completedChaptersIdentifier containsObject:chapterIdentifier];
         readyToPlayScenesForChapter = self.activeClients[chapterIdentifier] != nil;
         scene = [self nextSceneForChapterWithIdentifier:chapterIdentifier];
@@ -451,28 +550,37 @@
             NSString *previousChapterIdentifier = chapterIndex > 0 ? self.chapterIdentifiers[chapterIndex - 1] : nil;
             waitingForAnotherChapter = previousChapterIdentifier && ![self.completedChaptersIdentifier containsObject:previousChapterIdentifier];
         }
-    });
-    
-    if (chapterPlayed || !readyToPlayScenesForChapter || waitingForAnotherChapter || !scene || scene.played || scene.playing) {
-        NSString *nextChapterIdentifier = chapterPlayed ? [self nextIncompleteChapterIdentifier] : nil;
         
-        if (nextChapterIdentifier) {
-            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                [self playResponsesForChapterWithIdentifier:nextChapterIdentifier];
-            });
+        canPlayScene = !chapterPlayed && readyToPlayScenesForChapter && !waitingForAnotherChapter && scene && !scene.played && !scene.playing;
+        
+        if (!canPlayScene) {
+            if (!waitingForAnotherChapter && !scene) {
+                nextChapterIdentifier = [self nextIncompleteChapterIdentifier];
+                YHVScene *nextScene = nextChapterIdentifier ? [self nextSceneForChapterWithIdentifier:nextChapterIdentifier] : nil;
+                
+                if (nextChapterIdentifier && nextScene && (nextScene.played || nextScene.playing)) {
+                    nextChapterIdentifier = nil;
+                }
+            }
+            
+            if (nextChapterIdentifier) {
+                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                    [self playResponsesForChapterWithIdentifier:nextChapterIdentifier];
+                });
+            }
+            
+            return;
         }
-        return;
-    }
     
-    dispatch_async(self.resourceAccessQueue, ^{
         YHVNSURLProtocol *protocol = self.activeClients[chapterIdentifier];
-        scene.playing = YES;
+        self.currentScene = scene;
+        [scene setPlaying];
         
         if (scene.type == YHVResponseScene) {
             [protocol.client URLProtocol:protocol didReceiveResponse:(id)scene.data cacheStoragePolicy:NSURLCacheStorageNotAllowed];
             
             if ([self.connectionChapterIdentifiers containsObject:chapterIdentifier]) {
-                [self handleResponsePlayedForRequest:protocol.request];
+                [self handleResponsePlayedForRequest:protocol.request onQueue:NO];
             }
         } else if (scene.type == YHVDataScene) {
             NSData *data = (id)scene.data;
@@ -482,46 +590,67 @@
             }
             
             if (!data.length || [self.connectionChapterIdentifiers containsObject:chapterIdentifier]) {
-                [self handleDataPlayedForRequest:protocol.request];
+                [self handleDataPlayedForRequest:protocol.request onQueue:NO];
             }
         } else if (scene.type == YHVErrorScene) {
-            [protocol.client URLProtocol:protocol didFailWithError:(id)scene.data];
+            BOOL isCancelledError = ((NSError *)scene.data).code == NSURLErrorCancelled;
             
-            if ([self.connectionChapterIdentifiers containsObject:chapterIdentifier]) {
-                [self handleError:(id)scene.data playedForRequest:protocol.request];
+            if (!isCancelledError) {
+                [protocol.client URLProtocol:protocol didFailWithError:(id)scene.data];
+            }
+            
+            if (isCancelledError || [self.connectionChapterIdentifiers containsObject:chapterIdentifier]) {
+                [self handleError:(id)scene.data playedForRequest:protocol.request onQueue:NO];
             }
         } else if (scene.type == YHVClosingScene) {
             [protocol.client URLProtocolDidFinishLoading:protocol];
             
             if ([self.connectionChapterIdentifiers containsObject:chapterIdentifier]) {
-                [self handleError:nil playedForRequest:protocol.request];
+                [self handleError:nil playedForRequest:protocol.request onQueue:NO];
             }
         }
     });
 }
 
-- (void)markSceneAsPlayed:(YHVSceneType)sceneType forChapterWithIdentifier:(NSString *)identifier {
+- (void)markSceneAsPlayed:(YHVSceneType)sceneType forChapterWithIdentifier:(NSString *)identifier onQueue:(BOOL)useQueue {
     
-    dispatch_async(self.resourceAccessQueue, ^{
+    dispatch_block_t handlerBlock = ^{
         if (![self.completedChaptersIdentifier containsObject:identifier]) {
-            YHVScene *scene = [self nextSceneForChapterWithIdentifier:identifier];
+            YHVScene *scene = [self sceneWithType:sceneType forChapter:identifier];
+            BOOL isCurrentScene = [scene isEqual:self.currentScene];
+            NSString *nextChapterIdentifier = identifier;
             
             if (scene && !scene.played && (scene.playing || sceneType == YHVRequestScene) && scene.type == sceneType) {
                 if (scene.type == YHVErrorScene || scene.type == YHVClosingScene) {
                     [self.completedChaptersIdentifier addObject:identifier];
                 }
                 
-                scene.playing = NO;
-                scene.played = YES;
+                [scene setPlayed];
                 
-                if (sceneType != YHVRequestScene) {
+                if (!isCurrentScene) {
+                    return;
+                }
+                
+                self.currentScene = nil;
+                
+                if ([self.completedChaptersIdentifier containsObject:identifier]) {
+                    nextChapterIdentifier = [self nextIncompleteChapterIdentifier];
+                }
+                
+                if (sceneType != YHVRequestScene && nextChapterIdentifier) {
                     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                        [self playResponsesForChapterWithIdentifier:identifier];
+                        [self playResponsesForChapterWithIdentifier:nextChapterIdentifier];
                     });
                 }
             }
         }
-    });
+    };
+    
+    if (useQueue) {
+    dispatch_sync(self.resourceAccessQueue, handlerBlock);
+    } else {
+        handlerBlock();
+    }
 }
 
 - (void)handleRequestPlayedForTask:(NSURLSessionTask *)task {
@@ -546,22 +675,43 @@
 
 - (void)handleRequestPlayedForRequest:(NSURLRequest *)request {
 
-    [self markSceneAsPlayed:YHVRequestScene forChapterWithIdentifier:request.YHV_cassetteChapterIdentifier];
+    [self handleRequestPlayedForRequest:request onQueue:YES];
+}
+
+- (void)handleRequestPlayedForRequest:(NSURLRequest *)request onQueue:(BOOL)useQueue {
+    
+    [self markSceneAsPlayed:YHVRequestScene forChapterWithIdentifier:request.YHV_cassetteChapterIdentifier onQueue:useQueue];
 }
 
 - (void)handleResponsePlayedForRequest:(NSURLRequest *)request {
+    
+    [self handleResponsePlayedForRequest:request onQueue:YES];
+}
 
-    [self markSceneAsPlayed:YHVResponseScene forChapterWithIdentifier:request.YHV_cassetteChapterIdentifier];
+- (void)handleResponsePlayedForRequest:(NSURLRequest *)request onQueue:(BOOL)useQueue {
+    
+    [self markSceneAsPlayed:YHVResponseScene forChapterWithIdentifier:request.YHV_cassetteChapterIdentifier onQueue:useQueue];
 }
 
 - (void)handleDataPlayedForRequest:(NSURLRequest *)request {
+    
+    [self handleDataPlayedForRequest:request onQueue:YES];
+}
 
-    [self markSceneAsPlayed:YHVDataScene forChapterWithIdentifier:request.YHV_cassetteChapterIdentifier];
+- (void)handleDataPlayedForRequest:(NSURLRequest *)request onQueue:(BOOL)useQueue {
+    
+    [self markSceneAsPlayed:YHVDataScene forChapterWithIdentifier:request.YHV_cassetteChapterIdentifier onQueue:useQueue];
 }
 
 - (void)handleError:(NSError *)error playedForRequest:(NSURLRequest *)request {
+    
+    [self handleError:error playedForRequest:request onQueue:YES];
+}
 
-    [self markSceneAsPlayed:(error ? YHVErrorScene : YHVClosingScene) forChapterWithIdentifier:request.YHV_cassetteChapterIdentifier];
+- (void)handleError:(NSError *)error playedForRequest:(NSURLRequest *)request onQueue:(BOOL)useQueue {
+    
+    YHVSceneType type = (error ? YHVErrorScene : YHVClosingScene);
+    [self markSceneAsPlayed:type forChapterWithIdentifier:request.YHV_cassetteChapterIdentifier onQueue:useQueue];
 }
 
 - (NSUInteger)nextNotPlayedSceneIndex {
@@ -589,6 +739,7 @@
         }
         
         chapterIdentifier = [self nextSceneForChapterWithIdentifier:storedChapterIdentifier] ? storedChapterIdentifier: nil;
+        
         if (chapterIdentifier) {
             break;
         }
@@ -623,7 +774,7 @@
     NSString *identifier = nil;
     
     for (YHVScene *scene in self.scenes) {
-        if (scene.played || scene.type != YHVRequestScene) {
+        if (scene.played || scene.playing || scene.type != YHVRequestScene) {
             continue;
         }
         
@@ -634,6 +785,22 @@
     }
     
     return identifier;
+}
+
+- (YHVScene *)sceneWithType:(YHVSceneType)type forChapter:(NSString *)identifier {
+    
+    YHVScene *sceneByType = nil;
+    
+    for (YHVScene *scene in self.scenes) {
+        if (scene.played || scene.type != type || ![scene.identifier isEqualToString:identifier]) {
+            continue;
+        }
+        
+        sceneByType = scene;
+        break;
+    }
+    
+    return sceneByType;
 }
 
 
@@ -668,8 +835,8 @@
 #pragma mark - Recording request
 
 - (void)beginRecordingRequest:(NSURLRequest *)request {
-    
-    if (request.YHV_VCRIgnored || request.YHV_cassetteChapterIdentifier) {
+
+    if (![request.YHV_cassetteIdentifier isEqualToString:self.identifier] || request.YHV_VCRIgnored || request.YHV_cassetteChapterIdentifier) {
         return;
     }
 
@@ -683,17 +850,17 @@
         self.requestsIdentifiers[request.YHV_identifier] = identifier;
     });
     
-    NSURLRequest *fiteredRequest = self.configuration.beforeRecordRequest(request);
+    NSURLRequest *filteredRequest = self.configuration.beforeRecordRequest(request);
     
-    if (fiteredRequest) {
-        [self recordScene:[YHVScene sceneWithIdentifier:identifier type:YHVRequestScene data:fiteredRequest]];
+    if (filteredRequest) {
+        [self recordScene:[YHVScene sceneWithIdentifier:identifier type:YHVRequestScene data:filteredRequest]];
     }
 }
 
 
 - (void)recordResponse:(NSURLResponse *)response forRequest:(NSURLRequest *)request {
     
-    if (request.YHV_VCRIgnored || request.YHV_cassetteChapterIdentifier) {
+    if (![request.YHV_cassetteIdentifier isEqualToString:self.identifier] || request.YHV_VCRIgnored || request.YHV_cassetteChapterIdentifier) {
         return;
     }
 
@@ -714,16 +881,18 @@
         }
     });
     
-    NSAssert(identifier, @"Unable to record response. Currently doesn't track request with %@ identifier.", request.YHV_identifier);
+    if (!identifier) {
+        return;
+    }
     
-    NSArray *filteredResponse = self.configuration.beforeRecordResponse((id)requestScene.data, (id)response, nil);
+    NSURLResponse *filteredResponse = self.configuration.beforeRecordResponse((id)requestScene.data, (id)response, nil).firstObject;
     
-    [self recordScene:[YHVScene sceneWithIdentifier:identifier type:YHVResponseScene data:filteredResponse.firstObject]];
+    [self recordScene:[YHVScene sceneWithIdentifier:identifier type:YHVResponseScene data:filteredResponse]];
 }
 
 - (void)recordData:(NSData *)data forRequest:(NSURLRequest *)request {
     
-    if (request.YHV_VCRIgnored || request.YHV_cassetteChapterIdentifier) {
+    if (![request.YHV_cassetteIdentifier isEqualToString:self.identifier] || request.YHV_VCRIgnored || request.YHV_cassetteChapterIdentifier) {
         return;
     }
 
@@ -749,18 +918,22 @@
         }
     });
     
-    NSAssert(identifier, @"Unable to record data. Currently doesn't track request with %@ identifier.", request.YHV_identifier);
+    if (!identifier) {
+        return;
+    }
     
     NSArray *filteredResponse = self.configuration.beforeRecordResponse((id)requestScene.data, (id)responseScene.data, data);
     
     if (filteredResponse.count == 2) {
-        [self recordScene:[YHVScene sceneWithIdentifier:identifier type:YHVDataScene data:filteredResponse.lastObject]];
+        data = filteredResponse.lastObject;
+        
+        [self recordScene:[YHVScene sceneWithIdentifier:identifier type:YHVDataScene data:data]];
     }
 }
 
 - (void)recordCompletionWithError:(NSError *)error forRequest:(NSURLRequest *)request {
     
-    if (request.YHV_VCRIgnored || request.YHV_cassetteChapterIdentifier) {
+    if (![request.YHV_cassetteIdentifier isEqualToString:self.identifier] || request.YHV_VCRIgnored || request.YHV_cassetteChapterIdentifier) {
         return;
     }
 
@@ -770,19 +943,22 @@
         [self.requestsIdentifiers removeObjectForKey:request.YHV_identifier];
     });
     
-    NSAssert(identifier, @"Unable to record %@. Currently doesn't track request with %@ identifier.", (error ? @"error" : @"completion"),
-             request.YHV_identifier);
+    if (!identifier) {
+        return;
+    }
     
     if (error) {
         error = [self errorForRequest:request withFilteredUserInfo:error];
     }
     
-    [self recordScene:[YHVScene sceneWithIdentifier:identifier type:(error ? YHVErrorScene : YHVClosingScene) data:error]];
+    YHVSceneType sceneType = (error ? YHVErrorScene : YHVClosingScene);
+    
+    [self recordScene:[YHVScene sceneWithIdentifier:identifier type:sceneType data:error]];
 }
 
 - (void)clearFetchedDataForRequest:(NSURLRequest *)request {
     
-    if (request.YHV_VCRIgnored) {
+    if (![request.YHV_cassetteIdentifier isEqualToString:self.identifier] || request.YHV_VCRIgnored) {
         return;
     }
 
@@ -791,7 +967,9 @@
         identifier = self.requestsIdentifiers[request.YHV_identifier];
     });
     
-    NSAssert(identifier, @"Unable clear fetched data. Currently doesn't track request with %@ identifier.", request.YHV_identifier);
+    if (!identifier) {
+        return;
+    }
     
     dispatch_async(self.resourceAccessQueue, ^{
         NSMutableArray *dataScenes = [NSMutableArray new];
@@ -808,11 +986,12 @@
 
 - (void)recordScene:(YHVScene *)scene {
     
-    NSAssert(!self.isWriteProtected, @"Cassette is write protected. Unable to write new data.");
+    NSAssert(!self.isWriteProtected, @"Cassette is write protected. Unable to write new data: %@ (%@)", scene.data,
+             ((NSURLRequest *)scene.data).HTTPMethod.uppercaseString);
     
     dispatch_async(self.resourceAccessQueue, ^{
         NSUInteger nextSceneIndex = [self nextNotPlayedSceneIndex];
-        scene.played = YES;
+        [scene setPlayed];
         self.dirty = YES;
         
         if (nextSceneIndex == NSNotFound || nextSceneIndex + 1 == self.scenes.count) {

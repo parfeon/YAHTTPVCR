@@ -36,12 +36,12 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief  Stores whether scene currently playing it's content or not.
  */
-@property (nonatomic, assign) BOOL playing;
+@property (nonatomic, readonly, assign) BOOL playing;
 
 /**
  * @brief  Stores whether scene has been played or not.
  */
-@property (nonatomic, assign) BOOL played;
+@property (nonatomic, readonly, assign) BOOL played;
 
 
 #pragma mark - Initialization and Configuration
@@ -56,6 +56,23 @@ NS_ASSUME_NONNULL_BEGIN
  * @return Configured and read to use scene instance.
  */
 + (instancetype)sceneWithIdentifier:(NSString *)identifier type:(YHVSceneType)type data:(nullable id)data;
+
+
+#pragma mark - Playback
+
+/**
+ * @brief Mark scene as currently active.
+ *
+ * @since 1.3.0
+ */
+- (void)setPlaying;
+
+/**
+ * @brief Set scene playback completion.
+ *
+ * @since 1.3.0
+ */
+- (void)setPlayed;
 
 #pragma mark -
 

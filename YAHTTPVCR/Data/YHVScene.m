@@ -34,6 +34,11 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - Information
 
 /**
+ * @brief  Stores reference on queue which is used to serialize access to shared object information.
+ */
+@property (nonatomic, strong) dispatch_queue_t resourceAccessQueue;
+
+/**
  * @brief  Stores reference on type of scene.
  */
 @property (nonatomic, assign) YHVSceneType type;
@@ -49,6 +54,16 @@ NS_ASSUME_NONNULL_BEGIN
  * @discussion Data type depends from scene's \c type.
  */
 @property (nonatomic, strong) id<YHVSerializableDataProtocol> data;
+
+/**
+ * @brief  Stores whether scene currently playing it's content or not.
+ */
+@property (nonatomic, assign) BOOL playing;
+
+/**
+ * @brief  Stores whether scene has been played or not.
+ */
+@property (nonatomic, assign) BOOL played;
 
 
 #pragma mark - Initialization and Configuration
@@ -89,6 +104,29 @@ NS_ASSUME_NONNULL_END
 @implementation YHVScene
 
 
+#pragma mark - Information
+
+- (BOOL)playing {
+    
+    __block BOOL playing = NO;
+    dispatch_sync(self.resourceAccessQueue, ^{
+        playing = self->_playing;
+    });
+    
+    return playing;
+}
+
+- (BOOL)played {
+    
+    __block BOOL played = NO;
+    dispatch_sync(self.resourceAccessQueue, ^{
+        played = self->_played;
+    });
+    
+    return played;
+}
+
+
 #pragma mark - Initialization and Configuration
 
 + (instancetype)YHV_objectFromDictionary:(NSDictionary *)dictionary {
@@ -118,12 +156,33 @@ NS_ASSUME_NONNULL_END
 - (instancetype)initWithIdentifier:(NSString *)identifier type:(YHVSceneType)type data:(id)data {
     
     if ((self = [super init])) {
+        NSString *sceneQueueIdentifier = [@[@"com.yetanotherhttpvcr.cassette.scene", identifier] componentsJoinedByString:@"."];
+        _resourceAccessQueue = dispatch_queue_create([sceneQueueIdentifier cStringUsingEncoding:NSUTF8StringEncoding], DISPATCH_QUEUE_SERIAL);
+        
         _identifier = [identifier copy];
         _type = type;
         _data = data;
     }
     
     return self;
+}
+
+
+#pragma mark - Playback
+
+- (void)setPlaying {
+    
+    dispatch_sync(self.resourceAccessQueue, ^{
+        self.playing = YES;
+    });
+}
+
+- (void)setPlayed {
+    
+    dispatch_sync(self.resourceAccessQueue, ^{
+        self.playing = NO;
+        self.played = YES;
+    });
 }
 
 
@@ -145,6 +204,21 @@ NS_ASSUME_NONNULL_END
 + (id)dataObjectFromDictionary:(NSDictionary *)dictionary {
 
     return dictionary[kYHVSceneDataKey] ? [YHVSerializationHelper objectFromDictionary:dictionary[kYHVSceneDataKey]] : nil;
+}
+
+
+#pragma mark - Misc
+
+- (NSString *)description {
+    
+    static NSArray *_sharedTypeNames;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        _sharedTypeNames = @[@" YHVRequestScene", @"YHVResponseScene", @"    YHVDataScene", @"   YHVErrorScene", @" YHVClosingScene"];
+    });
+    
+    return [NSString stringWithFormat:@"<YHVScene %p type: %@, id: %@, played: %@, playing: %@>", self, self.identifier, _sharedTypeNames[self.type],
+            self.played ? @"YES" : @"NO", self.playing ? @"YES" : @"NO"];
 }
 
 #pragma mark -

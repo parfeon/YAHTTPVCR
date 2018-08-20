@@ -39,9 +39,28 @@
 @property (nonatomic, copy) NSString *YHV_identifier;
 
 /**
+ * @brief  Stores reference on identifier of cassette which handle this request.
+ */
+@property (nonatomic, copy) NSString *YHV_cassetteIdentifier;
+
+/**
  * @brief  Stores reference on identifier of chapter in which this request used.
  */
 @property (nonatomic, copy) NSString *YHV_cassetteChapterIdentifier;
+
+
+#pragma mark - Compare
+
+/**
+ * @brief  Check whether receiver is equal to target or not.
+ *
+ * @param request Reference on targert request against which check should be done.
+ *
+ * @return \c YES in case if requests main information are equal.
+ *
+ * @since 1.3.0
+ */
+- (BOOL)YHV_isEqual:(NSURLRequest *)request;
 
 #pragma mark -
 
