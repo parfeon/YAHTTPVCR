@@ -50,7 +50,9 @@
     NSURLSessionTask *task = (NSURLSessionTask *)self;
     
     if (task.originalRequest.YHV_cassetteChapterIdentifier || task.currentRequest.YHV_cassetteChapterIdentifier) {
-        [YHVVCR handleError:error playedForTask:task];
+        if (((NSError *)error).code != NSURLErrorCancelled) {
+            [YHVVCR handleError:error playedForTask:task];
+        }
     } else {
         [YHVVCR recordCompletionWithError:error forTask:task];
     }
@@ -79,6 +81,10 @@
     
     if (request.YHV_cassetteChapterIdentifier && !task.originalRequest.YHV_cassetteChapterIdentifier) {
         task.originalRequest.YHV_cassetteChapterIdentifier = request.YHV_cassetteChapterIdentifier;
+    }
+    
+    if (request.YHV_cassetteIdentifier && !task.originalRequest.YHV_cassetteIdentifier) {
+        task.originalRequest.YHV_cassetteIdentifier = request.YHV_cassetteIdentifier;
     }
     
     if (request.YHV_usingNSURLSession && !task.originalRequest.YHV_usingNSURLSession) {

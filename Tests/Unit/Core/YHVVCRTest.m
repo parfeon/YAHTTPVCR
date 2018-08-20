@@ -2,6 +2,7 @@
  * @author Serhii Mamontov
  */
 #import <XCTest/XCTest.h>
+#import <YAHTTPVCR/NSURLRequest+YHVPlayer.h>
 #import <YAHTTPVCR/NSDictionary+YHVNSURL.h>
 #import <YAHTTPVCR/YHVCassette+Private.h>
 #import <YAHTTPVCR/YHVNSURLProtocol.h>
@@ -578,6 +579,7 @@
     
     ((YHVPostBodyFilterBlock)YHVVCR.cassette.configuration.postBodyFilter)(request, request.HTTPBody);
     XCTAssertFalse(bodyFilterBlockCalled);
+    [urlRequestClassMock stopMocking];
 }
 
 - (void)testFilter_ShouldUseVCRBodyFilterBlock_WhenFilterBlockPassedDuringConfiguration {
@@ -810,7 +812,7 @@
     }];
     [YHVVCR insertCassetteWithPath:[NSUUID UUID].UUIDString];
     
-    XCTAssertEqualObjects(YHVVCR.cassette.configuration.beforeRecordRequest(request), request);
+    XCTAssertTrue([YHVVCR.cassette.configuration.beforeRecordRequest(request) YHV_isEqual:request]);
 }
 
 - (void)testBeforeRecordResponseFilter_ShouldReturnSameDataForResponse_WhenNoBeforeResponseRecordSpecified {
@@ -1005,10 +1007,111 @@
     cassettePartialMock = nil;
 }
 
+- (void)testHandleRequestPlayedForTask_ShouldForwardMethodCallToCassette {
+    
+    NSURLSessionTask *expectedTask = [NSURLSessionTask new];
+    
+    [YHVVCR setupWithConfiguration:^(YHVConfiguration *configuration) {
+        configuration.cassettesPath = self.cassettesPath;
+    }];
+    [YHVVCR insertCassetteWithPath:[NSUUID UUID].UUIDString];
+    
+    id cassettePartialMock = OCMPartialMock(YHVVCR.cassette);
+    OCMExpect([cassettePartialMock handleRequestPlayedForTask:expectedTask]).andDo(^(NSInvocation *invocation) {});
+    
+    [YHVVCR handleRequestPlayedForTask:expectedTask];
+    
+    OCMVerifyAll(cassettePartialMock);
+    
+    [cassettePartialMock stopMocking];
+    cassettePartialMock = nil;
+}
+
+- (void)testHandleRequestPlayedForRequest_ShouldForwardMethodCallToCassette {
+    
+    NSURLRequest *expectedRequest = [NSURLRequest requestWithURL:[NSURL URLWithString:@"http://localhost/?field4=value4&field3=value3"]];
+    
+    [YHVVCR setupWithConfiguration:^(YHVConfiguration *configuration) {
+        configuration.cassettesPath = self.cassettesPath;
+    }];
+    [YHVVCR insertCassetteWithPath:[NSUUID UUID].UUIDString];
+    
+    id cassettePartialMock = OCMPartialMock(YHVVCR.cassette);
+    OCMExpect([cassettePartialMock handleRequestPlayedForRequest:expectedRequest]).andDo(^(NSInvocation *invocation) {});
+    
+    [YHVVCR handleRequestPlayedForRequest:expectedRequest];
+    
+    OCMVerifyAll(cassettePartialMock);
+    
+    [cassettePartialMock stopMocking];
+    cassettePartialMock = nil;
+}
+
+- (void)testHandleResponsePlayedForTask_ShouldForwardMethodCallToCassette {
+    
+    NSURLSessionTask *expectedTask = [NSURLSessionTask new];
+    
+    [YHVVCR setupWithConfiguration:^(YHVConfiguration *configuration) {
+        configuration.cassettesPath = self.cassettesPath;
+    }];
+    [YHVVCR insertCassetteWithPath:[NSUUID UUID].UUIDString];
+    
+    id cassettePartialMock = OCMPartialMock(YHVVCR.cassette);
+    OCMExpect([cassettePartialMock handleResponsePlayedForTask:expectedTask]).andDo(^(NSInvocation *invocation) {});
+    
+    [YHVVCR handleResponsePlayedForTask:expectedTask];
+    
+    OCMVerifyAll(cassettePartialMock);
+    
+    [cassettePartialMock stopMocking];
+    cassettePartialMock = nil;
+}
+
+- (void)testHandleDataPlayedForTask_ShouldForwardMethodCallToCassette {
+    
+    NSURLSessionTask *expectedTask = [NSURLSessionTask new];
+    
+    [YHVVCR setupWithConfiguration:^(YHVConfiguration *configuration) {
+        configuration.cassettesPath = self.cassettesPath;
+    }];
+    [YHVVCR insertCassetteWithPath:[NSUUID UUID].UUIDString];
+    
+    id cassettePartialMock = OCMPartialMock(YHVVCR.cassette);
+    OCMExpect([cassettePartialMock handleDataPlayedForTask:expectedTask]).andDo(^(NSInvocation *invocation) {});
+    
+    [YHVVCR handleDataPlayedForTask:expectedTask];
+    
+    OCMVerifyAll(cassettePartialMock);
+    
+    [cassettePartialMock stopMocking];
+    cassettePartialMock = nil;
+}
+
+- (void)testHandleErrorPlayedForTask_ShouldForwardMethodCallToCassette {
+    
+    NSError *expectedError = [NSError errorWithDomain:@"TestErrorDomain" code:-1000 userInfo:@{ NSLocalizedDescriptionKey: @"Local description" }];
+    NSURLSessionTask *expectedTask = [NSURLSessionTask new];
+    
+    [YHVVCR setupWithConfiguration:^(YHVConfiguration *configuration) {
+        configuration.cassettesPath = self.cassettesPath;
+    }];
+    [YHVVCR insertCassetteWithPath:[NSUUID UUID].UUIDString];
+    
+    id cassettePartialMock = OCMPartialMock(YHVVCR.cassette);
+    OCMExpect([cassettePartialMock handleError:expectedError playedForTask:expectedTask]).andDo(^(NSInvocation *invocation) {});
+    
+    [YHVVCR handleError:expectedError playedForTask:expectedTask];
+    
+    OCMVerifyAll(cassettePartialMock);
+    
+    [cassettePartialMock stopMocking];
+    cassettePartialMock = nil;
+}
+
 
 #pragma mark - Recording
 
-- (void)testBeginRecording_ShouldForwardMethodCallToCassette {
+- (void)testBeginRecordingTask_ShouldForwardMethodCallToCassette {
     
     NSURLSessionTask *expectedTask = [NSURLSessionTask new];
     
@@ -1028,7 +1131,27 @@
     cassettePartialMock = nil;
 }
 
-- (void)testRecordResponse_ShouldForwardMethodCallToCassette {
+- (void)testBeginRecordingRequest_ShouldForwardMethodCallToCassette {
+    
+    NSURLRequest *expectedRequest = [NSURLRequest requestWithURL:[NSURL URLWithString:@"http://localhost/?field4=value4&field3=value3"]];
+    
+    [YHVVCR setupWithConfiguration:^(YHVConfiguration *configuration) {
+        configuration.cassettesPath = self.cassettesPath;
+    }];
+    [YHVVCR insertCassetteWithPath:[NSUUID UUID].UUIDString];
+    
+    id cassettePartialMock = OCMPartialMock(YHVVCR.cassette);
+    OCMExpect([cassettePartialMock beginRecordingRequest:expectedRequest]).andDo(^(NSInvocation *invocation) {});
+    
+    [YHVVCR beginRecordingRequest:expectedRequest];
+    
+    OCMVerifyAll(cassettePartialMock);
+    
+    [cassettePartialMock stopMocking];
+    cassettePartialMock = nil;
+}
+
+- (void)testRecordResponseForTask_ShouldForwardMethodCallToCassette {
     
     NSHTTPURLResponse *expectedResponse = [NSHTTPURLResponse new];
     NSURLSessionTask *expectedTask = [NSURLSessionTask new];
@@ -1049,7 +1172,28 @@
     cassettePartialMock = nil;
 }
 
-- (void)testRecordData_ShouldForwardMethodCallToCassette {
+- (void)testRecordResponseForRequest_ShouldForwardMethodCallToCassette {
+    
+    NSURLRequest *expectedRequest = [NSURLRequest requestWithURL:[NSURL URLWithString:@"http://localhost/?field4=value4&field3=value3"]];
+    NSHTTPURLResponse *expectedResponse = [NSHTTPURLResponse new];
+    
+    [YHVVCR setupWithConfiguration:^(YHVConfiguration *configuration) {
+        configuration.cassettesPath = self.cassettesPath;
+    }];
+    [YHVVCR insertCassetteWithPath:[NSUUID UUID].UUIDString];
+    
+    id cassettePartialMock = OCMPartialMock(YHVVCR.cassette);
+    OCMExpect([cassettePartialMock recordResponse:expectedResponse forRequest:expectedRequest]).andDo(^(NSInvocation *invocation) {});
+    
+    [YHVVCR recordResponse:expectedResponse forRequest:expectedRequest];
+    
+    OCMVerifyAll(cassettePartialMock);
+    
+    [cassettePartialMock stopMocking];
+    cassettePartialMock = nil;
+}
+
+- (void)testRecordDataForTask_ShouldForwardMethodCallToCassette {
     
     NSData *expectedData = [@"Yet Another HTTP VCR" dataUsingEncoding:NSUTF8StringEncoding];
     NSURLSessionTask *expectedTask = [NSURLSessionTask new];
@@ -1070,7 +1214,28 @@
     cassettePartialMock = nil;
 }
 
-- (void)testCompletionWithError_ShouldForwardMethodCallToCassette {
+- (void)testRecordDataForRequest_ShouldForwardMethodCallToCassette {
+    
+    NSURLRequest *expectedRequest = [NSURLRequest requestWithURL:[NSURL URLWithString:@"http://localhost/?field4=value4&field3=value3"]];
+    NSData *expectedData = [@"Yet Another HTTP VCR" dataUsingEncoding:NSUTF8StringEncoding];
+    
+    [YHVVCR setupWithConfiguration:^(YHVConfiguration *configuration) {
+        configuration.cassettesPath = self.cassettesPath;
+    }];
+    [YHVVCR insertCassetteWithPath:[NSUUID UUID].UUIDString];
+    
+    id cassettePartialMock = OCMPartialMock(YHVVCR.cassette);
+    OCMExpect([cassettePartialMock recordData:expectedData forRequest:expectedRequest]).andDo(^(NSInvocation *invocation) {});
+    
+    [YHVVCR recordData:expectedData forRequest:expectedRequest];
+    
+    OCMVerifyAll(cassettePartialMock);
+    
+    [cassettePartialMock stopMocking];
+    cassettePartialMock = nil;
+}
+
+- (void)testCompletionWithErrorForTask_ShouldForwardMethodCallToCassette {
     
     NSError *expectedError = [NSError errorWithDomain:@"TestErrorDomain" code:-1000 userInfo:@{ NSLocalizedDescriptionKey: @"Local description" }];
     NSURLSessionTask *expectedTask = [NSURLSessionTask new];
@@ -1084,6 +1249,27 @@
     OCMExpect([cassettePartialMock recordCompletionWithError:expectedError forTask:expectedTask]).andDo(^(NSInvocation *invocation) {});
     
     [YHVVCR recordCompletionWithError:expectedError forTask:expectedTask];
+    
+    OCMVerifyAll(cassettePartialMock);
+    
+    [cassettePartialMock stopMocking];
+    cassettePartialMock = nil;
+}
+
+- (void)testCompletionWithErrorForRequest_ShouldForwardMethodCallToCassette {
+    
+    NSError *expectedError = [NSError errorWithDomain:@"TestErrorDomain" code:-1000 userInfo:@{ NSLocalizedDescriptionKey: @"Local description" }];
+    NSURLRequest *expectedRequest = [NSURLRequest requestWithURL:[NSURL URLWithString:@"http://localhost/?field4=value4&field3=value3"]];
+    
+    [YHVVCR setupWithConfiguration:^(YHVConfiguration *configuration) {
+        configuration.cassettesPath = self.cassettesPath;
+    }];
+    [YHVVCR insertCassetteWithPath:[NSUUID UUID].UUIDString];
+    
+    id cassettePartialMock = OCMPartialMock(YHVVCR.cassette);
+    OCMExpect([cassettePartialMock recordCompletionWithError:expectedError forRequest:expectedRequest]).andDo(^(NSInvocation *invocation) {});
+    
+    [YHVVCR recordCompletionWithError:expectedError forRequest:expectedRequest];
     
     OCMVerifyAll(cassettePartialMock);
     

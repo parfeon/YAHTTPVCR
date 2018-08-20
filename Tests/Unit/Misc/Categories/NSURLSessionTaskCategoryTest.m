@@ -3,7 +3,9 @@
  */
 #import <XCTest/XCTest.h>
 #import <YAHTTPVCR/NSURLSessionTask+YHVRecorder.h>
+#import <YAHTTPVCR/NSURLRequest+YHVPlayer.h>
 #import <YAHTTPVCR/YHVVCR+Recorder.h>
+#import <YAHTTPVCR/YHVVCR+Player.h>
 #import <OCMock/OCMock.h>
 
 
@@ -50,6 +52,7 @@
 #pragma clang diagnostic pop
     
     OCMVerifyAll(vcrClassMock);
+    [vcrClassMock stopMocking];
 }
 
 - (void)testInitWithTask_ShouldCallVCRResponseRecord {
@@ -68,6 +71,7 @@
 #pragma clang diagnostic pop
     
     OCMVerifyAll(vcrClassMock);
+    [vcrClassMock stopMocking];
 }
 
 #pragma mark -

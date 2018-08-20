@@ -136,21 +136,29 @@ static const void *YHVTestCaseCassettesPathKey = &YHVTestCaseCassettesPathKey;
     
     [super setUp];
     
-    [self setCassettesPathIfRequired];
-    [self setCassettePathIfRequired];
-    
     if (![self shouldSetupVCR]) {
         return;
     }
     
+    [self setCassettesPathIfRequired];
+    [self setCassettePathIfRequired];
+    
     [YHVVCR setupWithConfiguration:^(YHVConfiguration *configuration) {
         configuration.cassettesPath = self.cassettesPath;
         [self updateVCRConfigurationFromDefaultConfiguration:configuration];
+        
+        if (![configuration.cassettesPath isEqualToString:self.cassettesPath]) {
+            self.cassettesPath = configuration.cassettesPath;
+        }
     }];
     
     [YHVVCR insertCassetteWithConfiguration:^(YHVConfiguration *configuration) {
         configuration.cassettePath = [self cassetteName];
         [self updateCassetteConfigurationFromDefaultConfiguration:configuration];
+        
+        if (![configuration.cassettePath isEqualToString:[self cassetteName]]) {
+            self.cassettePath = configuration.cassettePath;
+        }
     }];
 }
 

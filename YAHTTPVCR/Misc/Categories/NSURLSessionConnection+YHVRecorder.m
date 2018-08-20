@@ -94,7 +94,9 @@
 - (void)YHV__didReceiveData:(id)data {
     
     if (self.task.originalRequest.YHV_cassetteChapterIdentifier || self.task.currentRequest.YHV_cassetteChapterIdentifier) {
-        [YHVVCR handleDataPlayedForTask:self.task];
+        if (((NSData *)data).length) {
+            [YHVVCR handleDataPlayedForTask:self.task];
+        }
     } else {
         [YHVVCR recordData:data forTask:self.task];
     }

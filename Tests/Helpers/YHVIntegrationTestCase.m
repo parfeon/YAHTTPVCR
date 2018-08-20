@@ -4,6 +4,7 @@
 #import "YHVIntegrationTestCase.h"
 #import <YAHTTPVCR/NSMutableDictionary+YHVMisc.h>
 #import <YAHTTPVCR/YHVConfiguration+Private.h>
+#import <YAHTTPVCR/NSURLRequest+YHVPlayer.h>
 #import <YAHTTPVCR/NSDictionary+YHVNSURL.h>
 #import <YAHTTPVCR/YHVCassette+Private.h>
 #import <YAHTTPVCR/YHVScene.h>
@@ -339,8 +340,8 @@
     }
     
     NSURLRequest *matchedRequest = ((YHVBeforeRecordRequestBlock)YHVVCR.cassette.configuration.beforeRecordRequest)(request);
-    
-    XCTAssertTrue([cassettesRequest isEqual:matchedRequest], @"Request not stored on cassette.");
+
+    XCTAssertTrue([cassettesRequest YHV_isEqual:matchedRequest], @"Request not stored on cassette.");
     XCTAssertNotEqual(matchedRequest, request);
 }
 
