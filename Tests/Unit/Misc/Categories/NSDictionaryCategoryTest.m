@@ -15,12 +15,14 @@
 
 @property (nonatomic, copy) NSString *regularQueryString;
 @property (nonatomic, copy) NSString *queryStringWithMissingValue;
+@property (nonatomic, copy) NSString *queryStringWithUnsortedList;
 @property (nonatomic, copy) NSString *queryStringWithMissingEqualSign;
 @property (nonatomic, copy) NSString *queryStringWithJSONStringValue;
 @property (nonatomic, copy) NSString *wwwFormURLEncodedString;
 @property (nonatomic, copy) NSString *jsonBodyString;
 
 @property (nonatomic, strong) NSDictionary *expectedForRegularQuery;
+@property (nonatomic, strong) NSDictionary *expectedForQueryWithUnsortedList;
 @property (nonatomic, strong) NSDictionary *expectedForQueryWithMissingValue;
 @property (nonatomic, strong) NSDictionary *expectedForQueryWithMissingEqualSign;
 @property (nonatomic, strong) NSDictionary *expectedForQueryWithJSONStringValue;
@@ -45,6 +47,7 @@
     [super setUp];
     
     NSCharacterSet *charSet = [NSCharacterSet URLQueryAllowedCharacterSet];
+    self.queryStringWithUnsortedList = @"test=b_value,k_value,a_value";
     self.regularQueryString = @"test1=value1&test2=value2&test3=3";
     self.queryStringWithMissingValue = @"test1=value1&test2=&test3=value3";
     self.queryStringWithMissingEqualSign = @"test1=value1&test2=value2&test3";
@@ -58,6 +61,7 @@
     self.wwwFormURLEncodedString = [self.wwwFormURLEncodedString stringByAddingPercentEncodingWithAllowedCharacters:charSet];
     
     self.expectedForRegularQuery = @{ @"test1": @"value1", @"test2": @"value2", @"test3": @3 };
+    self.expectedForQueryWithUnsortedList = @{ @"test": @"a_value,b_value,k_value" };
     self.expectedForQueryWithMissingValue = @{ @"test1": @"value1", @"test3": @"value3" };
     self.expectedForQueryWithMissingEqualSign = @{ @"test1": @"value1", @"test2": @"value2" };
     self.expectedForQueryWithJSONStringValue = @{ @"test1": @"value1", @"test2": @{ @"title" : @"yet another http vcr" }, @"test3": @"value3" };
@@ -69,28 +73,45 @@
 #pragma mark - Tests :: NSURL :: Query string
 
 - (void)testDictionaryWithQuery_ShouldReturnNSDictionary {
-    
-    XCTAssertTrue([[NSDictionary YHV_dictionaryWithQuery:self.regularQueryString] isKindOfClass:[NSDictionary class]]);
+  
+    id dictionary = [NSDictionary YHV_dictionaryWithQuery:self.regularQueryString sortQueryListOnMatch:NO];
+    XCTAssertTrue([dictionary isKindOfClass:[NSDictionary class]]);
 }
 
 - (void)testDictionaryWithQuery_ShouldReturnNSDictionary_WhenQueryNSStringPassed {
     
-    XCTAssertEqualObjects([NSDictionary YHV_dictionaryWithQuery:self.regularQueryString], self.expectedForRegularQuery);
+    XCTAssertEqualObjects([NSDictionary YHV_dictionaryWithQuery:self.regularQueryString sortQueryListOnMatch:NO],
+                          self.expectedForRegularQuery);
 }
 
 - (void)testDictionaryWithQuery_ShouldIgnoreQueryParameter_WhenQueryParameterDoesntHaveValue {
     
-    XCTAssertEqualObjects([NSDictionary YHV_dictionaryWithQuery:self.queryStringWithMissingValue], self.expectedForQueryWithMissingValue);
+    XCTAssertEqualObjects([NSDictionary YHV_dictionaryWithQuery:self.queryStringWithMissingValue sortQueryListOnMatch:NO],
+                          self.expectedForQueryWithMissingValue);
 }
 
 - (void)testDictionaryWithQuery_ShouldIgnoreQueryParameter_WhenNoEualSignInPair {
     
-    XCTAssertEqualObjects([NSDictionary YHV_dictionaryWithQuery:self.queryStringWithMissingEqualSign], self.expectedForQueryWithMissingEqualSign);
+    XCTAssertEqualObjects([NSDictionary YHV_dictionaryWithQuery:self.queryStringWithMissingEqualSign sortQueryListOnMatch:NO],
+                          self.expectedForQueryWithMissingEqualSign);
 }
 
 - (void)testDictionaryWithQuery_ShouldJSONParseQueryValue_WhenJSONStringSetForQueryParameter {
     
-    XCTAssertEqualObjects([NSDictionary YHV_dictionaryWithQuery:self.queryStringWithJSONStringValue], self.expectedForQueryWithJSONStringValue);
+    XCTAssertEqualObjects([NSDictionary YHV_dictionaryWithQuery:self.queryStringWithJSONStringValue sortQueryListOnMatch:NO],
+                          self.expectedForQueryWithJSONStringValue);
+}
+
+- (void)testDictionaryWithQuery_ShouldMatchOrderedListSetToQueryParameter_WhenSortFlagIsSet {
+  
+  XCTAssertEqualObjects([NSDictionary YHV_dictionaryWithQuery:self.queryStringWithUnsortedList sortQueryListOnMatch:YES],
+                        self.expectedForQueryWithUnsortedList);
+}
+
+- (void)testDictionaryWithQuery_ShouldNotMatchOrderedListSetToQueryParameter_WhenSortFlagIsSet {
+  
+  XCTAssertNotEqualObjects([NSDictionary YHV_dictionaryWithQuery:self.queryStringWithUnsortedList sortQueryListOnMatch:NO],
+                           self.expectedForQueryWithUnsortedList);
 }
 
 - (void)testToQueryString_ShouldReturnNSString {

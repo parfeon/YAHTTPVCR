@@ -559,7 +559,7 @@
 			files = (
 			);
 			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-Tests-[Test] iOS Code Coverage (Integration)/Pods-Tests-[Test] iOS Code Coverage (Integration)-frameworks.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-Tests-[Test] iOS Code Coverage (Integration)/Pods-Tests-[Test] iOS Code Coverage (Integration)-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/OCMock/OCMock.framework",
 				"${BUILT_PRODUCTS_DIR}/YAHTTPVCR/YAHTTPVCR.framework",
 			);
@@ -570,7 +570,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Tests-[Test] iOS Code Coverage (Integration)/Pods-Tests-[Test] iOS Code Coverage (Integration)-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Tests-[Test] iOS Code Coverage (Integration)/Pods-Tests-[Test] iOS Code Coverage (Integration)-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		1E8753A936B6BA649A41A054 /* [CP] Embed Pods Frameworks */ = {
@@ -579,7 +579,7 @@
 			files = (
 			);
 			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-Tests-[Test] iOS Code Coverage (Full)/Pods-Tests-[Test] iOS Code Coverage (Full)-frameworks.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-Tests-[Test] iOS Code Coverage (Full)/Pods-Tests-[Test] iOS Code Coverage (Full)-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/OCMock/OCMock.framework",
 				"${BUILT_PRODUCTS_DIR}/YAHTTPVCR/YAHTTPVCR.framework",
 			);
@@ -590,7 +590,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Tests-[Test] iOS Code Coverage (Full)/Pods-Tests-[Test] iOS Code Coverage (Full)-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Tests-[Test] iOS Code Coverage (Full)/Pods-Tests-[Test] iOS Code Coverage (Full)-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		432924DA5A64D428534EC5DE /* [CP] Check Pods Manifest.lock */ = {
@@ -671,7 +671,7 @@
 			files = (
 			);
 			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-Tests-[Test] iOS Unit/Pods-Tests-[Test] iOS Unit-frameworks.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-Tests-[Test] iOS Unit/Pods-Tests-[Test] iOS Unit-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/OCMock/OCMock.framework",
 				"${BUILT_PRODUCTS_DIR}/YAHTTPVCR/YAHTTPVCR.framework",
 			);
@@ -682,7 +682,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Tests-[Test] iOS Unit/Pods-Tests-[Test] iOS Unit-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Tests-[Test] iOS Unit/Pods-Tests-[Test] iOS Unit-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		BB0AD9107D94B731AAC3B702 /* [CP] Embed Pods Frameworks */ = {
@@ -691,7 +691,7 @@
 			files = (
 			);
 			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-Tests-[Test] iOS Code Coverage (Unit)/Pods-Tests-[Test] iOS Code Coverage (Unit)-frameworks.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-Tests-[Test] iOS Code Coverage (Unit)/Pods-Tests-[Test] iOS Code Coverage (Unit)-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/OCMock/OCMock.framework",
 				"${BUILT_PRODUCTS_DIR}/YAHTTPVCR/YAHTTPVCR.framework",
 			);
@@ -702,7 +702,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Tests-[Test] iOS Code Coverage (Unit)/Pods-Tests-[Test] iOS Code Coverage (Unit)-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Tests-[Test] iOS Code Coverage (Unit)/Pods-Tests-[Test] iOS Code Coverage (Unit)-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		D851C0B07F25C7006F61AC3F /* [CP] Embed Pods Frameworks */ = {
@@ -711,7 +711,7 @@
 			files = (
 			);
 			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-Tests-[Test] iOS Integration/Pods-Tests-[Test] iOS Integration-frameworks.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-Tests-[Test] iOS Integration/Pods-Tests-[Test] iOS Integration-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/OCMock/OCMock.framework",
 				"${BUILT_PRODUCTS_DIR}/YAHTTPVCR/YAHTTPVCR.framework",
 			);
@@ -722,7 +722,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Tests-[Test] iOS Integration/Pods-Tests-[Test] iOS Integration-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Tests-[Test] iOS Integration/Pods-Tests-[Test] iOS Integration-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */

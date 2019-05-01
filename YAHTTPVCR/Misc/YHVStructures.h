@@ -8,6 +8,8 @@
 #define YHVStructures_h
 
 
+NS_ASSUME_NONNULL_BEGIN
+
 #pragma mark Types and Structures
 
 /**
@@ -139,7 +141,7 @@ typedef BOOL (^YHVHostFilterBlock)(NSString *host);
  *
  * @return Reference on string which should be used instead of exsiting URI path for \c request.
  */
-typedef NSString * (^YHVPathFilterBlock)(NSURLRequest *request);
+typedef NSString * __nonnull (^YHVPathFilterBlock)(NSURLRequest *request);
 
 /**
  * @brief      Request query parameters filter block.
@@ -180,7 +182,9 @@ typedef NSData * __nullable (^YHVPostBodyFilterBlock)(NSURLRequest *request, NSD
  *
  * @return Reference on value which should be used instead of original one or \c nil in case if response body should be removed.
  */
-typedef NSData * __nullable (^YHVResponseBodyFilterBlock)(NSURLRequest *request, NSHTTPURLResponse *response, NSData * __nullable data);
+typedef NSData * __nullable (^YHVResponseBodyFilterBlock)(NSURLRequest *request,
+                                                          NSHTTPURLResponse *response,
+                                                          NSData * __nullable data);
 
 /**
  * @brief      Requests match block.
@@ -216,6 +220,10 @@ typedef NSURLRequest * __nullable (^YHVBeforeRecordRequestBlock)(NSURLRequest *r
  * @return List (tuple) where first element is modified (same) \c response and second element modified (same) response \c data. Pass array only
  *         with \c response to remove \c data from stub.
  */
-typedef NSArray * (^YHVBeforeRecordResponseBlock)(NSURLRequest *request, NSHTTPURLResponse *response, NSData *data);
+typedef NSArray * __nonnull (^YHVBeforeRecordResponseBlock)(NSURLRequest *request,
+                                                            NSHTTPURLResponse *response,
+                                                            NSData * __nullable data);
 
 #endif // YHVStructures_h
+
+NS_ASSUME_NONNULL_END
