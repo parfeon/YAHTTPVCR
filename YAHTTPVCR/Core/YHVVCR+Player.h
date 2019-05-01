@@ -9,6 +9,7 @@
 
 @class YHVNSURLProtocol;
 
+NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - Interface declaration
 
@@ -83,3 +84,5 @@
 
 
 @end
+
+NS_ASSUME_NONNULL_END

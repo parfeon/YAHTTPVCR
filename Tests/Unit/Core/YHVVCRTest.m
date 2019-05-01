@@ -535,7 +535,7 @@
     
     NSData *data = ((YHVPostBodyFilterBlock)YHVVCR.cassette.configuration.postBodyFilter)(request, request.HTTPBody);
     NSString *postBodyString = [[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"+" withString:@" "];
-    NSDictionary *dataDictionary = [NSDictionary YHV_dictionaryWithQuery:postBodyString];
+    NSDictionary *dataDictionary = [NSDictionary YHV_dictionaryWithQuery:postBodyString sortQueryListOnMatch:NO];
     XCTAssertNotNil(data);
     XCTAssertNotEqualObjects(data, request.HTTPBody);
     XCTAssertEqualObjects(dataDictionary[@"field1"], @"secret-body-value");
@@ -672,7 +672,7 @@
     
     NSData *data = ((YHVResponseBodyFilterBlock)YHVVCR.cassette.configuration.responseBodyFilter)(request, response, responseData);
     NSString *postBodyString = [[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"+" withString:@" "];
-    NSDictionary *dataDictionary = [NSDictionary YHV_dictionaryWithQuery:postBodyString];
+    NSDictionary *dataDictionary = [NSDictionary YHV_dictionaryWithQuery:postBodyString sortQueryListOnMatch:NO];
     XCTAssertNotNil(data);
     XCTAssertNotEqualObjects(data, responseData);
     XCTAssertEqualObjects(dataDictionary[@"field1"], @"secret-body-value");
@@ -784,7 +784,8 @@
     [YHVVCR insertCassetteWithPath:[NSUUID UUID].UUIDString];
     
     NSURLRequest *finalRequest = YHVVCR.cassette.configuration.beforeRecordRequest(request);
-    XCTAssertEqualObjects([NSDictionary YHV_dictionaryWithQuery:finalRequest.URL.query], expectedQuery);
+    XCTAssertEqualObjects([NSDictionary YHV_dictionaryWithQuery:finalRequest.URL.query sortQueryListOnMatch:NO],
+                          expectedQuery);
     XCTAssertEqualObjects(finalRequest.allHTTPHeaderFields, expectedHeaders);
     XCTAssertEqualObjects([NSJSONSerialization JSONObjectWithData:finalRequest.HTTPBody options:NSJSONReadingAllowFragments error:nil], expectedPostBody);
     XCTAssertEqualObjects(finalRequest.HTTPMethod.lowercaseString, @"get");
@@ -875,7 +876,8 @@
     [YHVVCR insertCassetteWithPath:[NSUUID UUID].UUIDString];
     
     NSArray *responseData = YHVVCR.cassette.configuration.beforeRecordResponse(request, response, data);
-    XCTAssertEqualObjects([NSDictionary YHV_dictionaryWithQuery:((NSHTTPURLResponse *)responseData.firstObject).URL.query], expectedQuery);
+    XCTAssertEqualObjects([NSDictionary YHV_dictionaryWithQuery:((NSHTTPURLResponse *)responseData.firstObject).URL.query sortQueryListOnMatch:NO],
+                          expectedQuery);
     XCTAssertEqualObjects([NSJSONSerialization JSONObjectWithData:responseData.lastObject options:NSJSONReadingAllowFragments error:nil], expectedResponseBody);
     XCTAssertTrue(beforeRecordResponseCalled);
 }

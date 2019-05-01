@@ -5,6 +5,7 @@
 #import "YHVRequestMatchers.h"
 #import "NSURLRequest+YHVPlayer.h"
 #import "NSDictionary+YHVNSURL.h"
+#import "YHVVCR.h"
 
 
 #define YHV_OUTPUT_MATCHING 0
@@ -102,8 +103,10 @@
 + (YHVMatcherBlock)query {
     
     return ^BOOL (NSURLRequest *request, NSURLRequest *stubRequest) {
-        NSDictionary *requestQuery = [NSDictionary YHV_dictionaryWithQuery:request.URL.query];
-        NSDictionary *stubRequestQuery = [NSDictionary YHV_dictionaryWithQuery:stubRequest.URL.query];
+        NSDictionary *requestQuery = [NSDictionary YHV_dictionaryWithQuery:request.URL.query
+                                                      sortQueryListOnMatch:YHVVCR.matchQueryWithSortedListValue];
+        NSDictionary *stubRequestQuery = [NSDictionary YHV_dictionaryWithQuery:stubRequest.URL.query
+                                                          sortQueryListOnMatch:YHVVCR.matchQueryWithSortedListValue];
 #if YHV_OUTPUT_MATCHING
         NSData *requestQueryData = [NSJSONSerialization dataWithJSONObject:requestQuery options:(NSJSONWritingOptions)0 error:nil];
         NSData *stubRequestQueryData = [NSJSONSerialization dataWithJSONObject:stubRequestQuery options:(NSJSONWritingOptions)0 error:nil];
@@ -178,8 +181,10 @@
             NSString *postBodyString = [[NSString alloc] initWithData:request.YHV_HTTPBody encoding:NSUTF8StringEncoding];
             stubPostBodyString = [stubPostBodyString stringByReplacingOccurrencesOfString:@"+" withString:@" "];
             postBodyString = [postBodyString stringByReplacingOccurrencesOfString:@"+" withString:@" "];
-            stubPostBody = [NSDictionary YHV_dictionaryWithQuery:stubPostBodyString];
-            postBody = [NSDictionary YHV_dictionaryWithQuery:postBodyString];
+            stubPostBody = [NSDictionary YHV_dictionaryWithQuery:stubPostBodyString
+                                            sortQueryListOnMatch:YHVVCR.matchQueryWithSortedListValue];
+            postBody = [NSDictionary YHV_dictionaryWithQuery:postBodyString
+                                        sortQueryListOnMatch:YHVVCR.matchQueryWithSortedListValue];
         }
         
 #if YHV_OUTPUT_MATCHING

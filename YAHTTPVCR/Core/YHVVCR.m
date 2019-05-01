@@ -33,6 +33,13 @@ YHVMatchers YHVMatcher = {
     .headers = @"headers"
 };
 
+#pragma mark - Statics
+
+/**
+ * @brief Storage for 'matchQueryWithSortedListValue' class property
+ */
+static BOOL YHVMatchQueryWithSortedListValue = YES;
+
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -227,6 +234,16 @@ NS_ASSUME_NONNULL_END
 
 
 #pragma mark - Information
+
++ (BOOL)matchQueryWithSortedListValue {
+  
+  return YHVMatchQueryWithSortedListValue;
+}
+
++ (void)setMatchQueryWithSortedListValue:(BOOL)matchQueryWithSortedListValue {
+  
+  YHVMatchQueryWithSortedListValue = matchQueryWithSortedListValue;
+}
 
 + (YHVCassette *)cassette {
     
@@ -594,7 +611,8 @@ NS_ASSUME_NONNULL_END
         }
         
         if (configuration.queryParametersFilter) {
-            NSDictionary *query = [NSDictionary YHV_dictionaryWithQuery:finalRequest.URL.query];
+            NSDictionary *query = [NSDictionary YHV_dictionaryWithQuery:finalRequest.URL.query
+                                                   sortQueryListOnMatch:NO];
             NSMutableDictionary *mutableQuery = [query mutableCopy];
             
             ((YHVQueryParametersFilterBlock)configuration.queryParametersFilter)(request, mutableQuery);

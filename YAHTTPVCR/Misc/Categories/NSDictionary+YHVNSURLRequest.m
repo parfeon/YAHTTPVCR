@@ -81,7 +81,7 @@
     } else if ([contentType rangeOfString:@"application/x-www-form-urlencoded"].location != NSNotFound) {
         NSString *postBodyString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
         postBodyString = [postBodyString stringByReplacingOccurrencesOfString:@"+" withString:@" "];
-        dictionary = [NSDictionary YHV_dictionaryWithQuery:postBodyString];
+        dictionary = [NSDictionary YHV_dictionaryWithQuery:postBodyString sortQueryListOnMatch:NO];
     }
     
     return dictionary.count ? dictionary : nil;

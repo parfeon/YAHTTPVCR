@@ -12,7 +12,7 @@
 
 #pragma mark - NSURL
 
-+ (instancetype)YHV_dictionaryWithQuery:(NSString *)urlQuery {
++ (instancetype)YHV_dictionaryWithQuery:(NSString *)urlQuery sortQueryListOnMatch:(BOOL)sortOnMatch {
     
     NSMutableDictionary *dictionary = [NSMutableDictionary new];
     NSArray<NSString *> *keyValuePairsList = [urlQuery componentsSeparatedByString:@"&"];
@@ -37,6 +37,12 @@
         
         if (!error && object) {
             value = object;
+        } else if (sortOnMatch && [value isKindOfClass:[NSString class]] &&
+                   [(NSString *)value rangeOfString:@","].location != NSNotFound) {
+          
+          NSArray *listElements = [(NSString *)value componentsSeparatedByString:@","];
+          listElements = [listElements sortedArrayUsingSelector:@selector(caseInsensitiveCompare:)];
+          value = [listElements componentsJoinedByString:@","];
         }
         
         dictionary[key] = value;

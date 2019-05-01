@@ -18,10 +18,11 @@ NS_ASSUME_NONNULL_BEGIN
  * @brief  Create dictionary which contain key/value pairs from NSRUL query part.
  *
  * @param urlQuery Reference on \a NSURL's query string which should be parsed.
+ * @param sortOnMatch If query value is list, whether it should be sorted for match or not.
  *
  * @return Dictionary with keys and values extracted from NSURL query part.
  */
-+ (instancetype)YHV_dictionaryWithQuery:(NSString *)urlQuery;
++ (instancetype)YHV_dictionaryWithQuery:(NSString *)urlQuery sortQueryListOnMatch:(BOOL)sortOnMatch;
 
 /**
  * @brief      Encode data stored in dictionary to query string.

@@ -1,6 +1,8 @@
 #import <YAHTTPVCR/YAHTTPVCR.h>
 
 
+NS_ASSUME_NONNULL_BEGIN
+
 #pragma mark Structures
 
 /**
@@ -152,3 +154,5 @@ typedef void(^YHVVerificationBlock)(NSURLRequest *request, NSHTTPURLResponse * _
 
 
 @end
+
+NS_ASSUME_NONNULL_END

@@ -22,14 +22,19 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - Information
 
 /**
- * @brief  Stores reference on cassette which currently inserted into VCR.
- */
-@property (class, nonatomic, readonly, strong) YHVCassette *cassette;
-
-/**
  * @brief  Stores reference on map of registered request matcher names to their GCD blocks.
  */
 @property (class, nonatomic, readonly, strong) NSDictionary<NSString *, YHVMatcherBlock> *matchers;
+
+/**
+ * @brief In case if query parameter represent list of elements, this option allow to sort it before trying to match.
+ */
+@property (class, nonatomic, assign) BOOL matchQueryWithSortedListValue;
+
+/**
+ * @brief  Stores reference on cassette which currently inserted into VCR.
+ */
+@property (class, nonatomic, readonly, strong) YHVCassette *cassette;
 
 
 #pragma mark - Configuration
