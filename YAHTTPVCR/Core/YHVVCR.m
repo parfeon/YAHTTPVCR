@@ -660,6 +660,7 @@ NS_ASSUME_NONNULL_END
 - (YHVPostBodyFilterBlock)createPOSTBodyFilterBlockWithConfiguration:(YHVConfiguration *)configuration {
     
     id postBodyFilter = configuration.postBodyFilter ?: self.sharedConfiguration.postBodyFilter;
+    NSArray<NSString *> *requestMethodsWithHTTPBody = @[@"post", @"put", @"patch"];
     NSDictionary *bodyKeysForModification = nil;
     
     if ([postBodyFilter isKindOfClass:[NSDictionary class]]) {
@@ -667,7 +668,7 @@ NS_ASSUME_NONNULL_END
     }
     
     return ^NSData * (NSURLRequest *request, NSData *body) {
-        if (![request.HTTPMethod.lowercaseString isEqualToString:@"post"]) {
+        if (![requestMethodsWithHTTPBody containsObject:request.HTTPMethod.lowercaseString]) {
             return body;
         } else if (postBodyFilter && !bodyKeysForModification) {
             return ((YHVPostBodyFilterBlock)postBodyFilter)(request, body);
