@@ -51,9 +51,10 @@
 
 + (instancetype)YHV_dictionaryFromNSURLRequestPOSTBody:(NSURLRequest *)request {
     
+    NSArray<NSString *> *requestMethodsWithHTTPBody = @[@"post", @"put", @"patch"];
     NSDictionary *dictionary = nil;
     
-    if ([request.HTTPMethod.lowercaseString isEqualToString:@"post"]) {
+    if ([requestMethodsWithHTTPBody containsObject:request.HTTPMethod.lowercaseString]) {
         dictionary = [self YHV_dictionaryFromData:request.YHV_HTTPBody withContentType:[request valueForHTTPHeaderField:@"Content-Type"]];
     }
     
@@ -89,9 +90,10 @@
 
 - (NSData *)YHV_POSTBodyForNSURLRequest:(NSURLRequest *)request {
     
+    NSArray<NSString *> *requestMethodsWithHTTPBody = @[@"post", @"put", @"patch"];
     NSData *data = nil;
     
-    if ([request.HTTPMethod.lowercaseString isEqualToString:@"post"]) {
+    if ([requestMethodsWithHTTPBody containsObject:request.HTTPMethod.lowercaseString]) {
         data = [self YHV_DataWithContentType:[request valueForHTTPHeaderField:@"Content-Type"]];
     }
     
