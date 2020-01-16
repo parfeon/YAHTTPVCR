@@ -3,7 +3,7 @@ January 5 2020
 
 #### Added
 - _bodyFilter_ support for `put` and `patch` HTTP methods.
-  - Added by [parfeon](https://github.com/parfeon) in Pull Request [#10](https://github.com/parfeon/YAHTTPVCR/pull/10).
+  - Added by [parfeon](https://github.com/parfeon) in Pull @parfeon Request [#10](https://github.com/parfeon/YAHTTPVCR/pull/10).
 
 ## [1.3.0](https://github.com/parfeon/YAHTTPVCR/releases/tag/v1.3.0)
 August 20 2018
