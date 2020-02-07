@@ -30,7 +30,8 @@ Pod::Spec.new do |spec|
         'YAHTTPVCR/Data/YHVScene.h',
         'YAHTTPVCR/**/*Private.h'
     ]
-
+    
+    spec.library = 'z'
     spec.framework = 'XCTest'
     spec.license = 'MIT'
 end
