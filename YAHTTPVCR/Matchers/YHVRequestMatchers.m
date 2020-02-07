@@ -164,21 +164,33 @@
             return NO;
         }
         
+        NSString *requestContentEncoding = [request valueForHTTPHeaderField:@"Content-Encoding"];
+        NSString *stubRequestContentEncoding = [stubRequest valueForHTTPHeaderField:@"Content-Encoding"];
         NSString *requestContentType = [request valueForHTTPHeaderField:@"Content-Type"];
         NSString *stubRequestContentType = [stubRequest valueForHTTPHeaderField:@"Content-Type"];
+        NSData *stubPostBodyData = stubRequest.YHV_HTTPBody;
+        NSData *postBodyData = request.YHV_HTTPBody;
         NSDictionary *stubPostBody = nil;
         NSDictionary *postBody = nil;
+        
+        if ([requestContentEncoding isEqualToString:@"gzip"] || [requestContentEncoding isEqualToString:@"deflate"]) {
+            postBodyData = [postBodyData YHV_unzipped];
+        }
+        
+        if ([stubRequestContentEncoding isEqualToString:@"gzip"] || [stubRequestContentEncoding isEqualToString:@"deflate"]) {
+            stubPostBodyData = [stubPostBodyData YHV_unzipped];
+        }
         
         if (requestContentType && [requestContentType rangeOfString:@"application/json"].location != NSNotFound &&
             stubRequestContentType && [stubRequestContentType rangeOfString:@"application/json"].location != NSNotFound) {
             
-            stubPostBody = [NSJSONSerialization JSONObjectWithData:stubRequest.YHV_HTTPBody options:NSJSONReadingAllowFragments error:nil];
-            postBody = [NSJSONSerialization JSONObjectWithData:request.YHV_HTTPBody options:NSJSONReadingAllowFragments error:nil];
+            stubPostBody = [NSJSONSerialization JSONObjectWithData:stubPostBodyData options:NSJSONReadingAllowFragments error:nil];
+            postBody = [NSJSONSerialization JSONObjectWithData:postBodyData options:NSJSONReadingAllowFragments error:nil];
         } else if (requestContentType && [requestContentType rangeOfString:@"application/x-www-form-urlencoded"].location != NSNotFound &&
                    stubRequestContentType && [stubRequestContentType rangeOfString:@"application/x-www-form-urlencoded"].location != NSNotFound) {
             
-            NSString *stubPostBodyString = [[NSString alloc] initWithData:stubRequest.YHV_HTTPBody encoding:NSUTF8StringEncoding];
-            NSString *postBodyString = [[NSString alloc] initWithData:request.YHV_HTTPBody encoding:NSUTF8StringEncoding];
+            NSString *stubPostBodyString = [[NSString alloc] initWithData:stubPostBodyData encoding:NSUTF8StringEncoding];
+            NSString *postBodyString = [[NSString alloc] initWithData:postBodyData encoding:NSUTF8StringEncoding];
             stubPostBodyString = [stubPostBodyString stringByReplacingOccurrencesOfString:@"+" withString:@" "];
             postBodyString = [postBodyString stringByReplacingOccurrencesOfString:@"+" withString:@" "];
             stubPostBody = [NSDictionary YHV_dictionaryWithQuery:stubPostBodyString
@@ -190,14 +202,14 @@
 #if YHV_OUTPUT_MATCHING
          NSLog(@"\nBODY MATCH (STUB %@)\nORIG: %@\nSTUB: %@\nMATCH: %@",
                stubRequest ? @"EXISTS" : @"IS MISSING",
-               [[NSString alloc] initWithData:request.YHV_HTTPBody encoding:NSUTF8StringEncoding],
-               [[NSString alloc] initWithData:stubRequest.YHV_HTTPBody encoding:NSUTF8StringEncoding],
-               ((stubPostBody && postBody && [postBody isEqualToDictionary:stubPostBody]) ||
-                [request.YHV_HTTPBody isEqual:stubRequest.YHV_HTTPBody]) ? @"YES" : @"NO");
+               [[NSString alloc] initWithData:postBodyData encoding:NSUTF8StringEncoding],
+               [[NSString alloc] initWithData:stubPostBodyData encoding:NSUTF8StringEncoding],
+               ((stubPostBody && postBody && [postBody isEqual:stubPostBody]) ||
+                [postBodyData isEqual:stubPostBodyData]) ? @"YES" : @"NO");
 #endif
         
-        return ((stubPostBody && postBody && [postBody isEqualToDictionary:stubPostBody]) ||
-                [request.YHV_HTTPBody isEqual:stubRequest.YHV_HTTPBody]);
+        return ((stubPostBody && postBody && [postBody isEqual:stubPostBody]) ||
+                [postBodyData isEqual:stubPostBodyData]);
     };
 }
 
