@@ -5,6 +5,7 @@
 #import "YHVRequestMatchers.h"
 #import "NSURLRequest+YHVPlayer.h"
 #import "NSDictionary+YHVNSURL.h"
+#import "NSData+YHVGZIP.h"
 #import "YHVVCR.h"
 
 

@@ -13,13 +13,12 @@ env:
         - LANG=en_US.UTF-8
   
 before_install:
-  - sudo gem install xcpretty-travis-formatter
-  - sudo gem install cocoapods -v '1.5.3'
+  - sudo gem install xcpretty
   - pod install
 
 script:
   - set -o pipefail
-  - xcodebuild -workspace './YAHTTPVCR.xcworkspace' -scheme '[Test] iOS Code Coverage (Full)' -configuration Debug -destination 'platform=iOS Simulator,name=iPhone 7,OS=11.4' build test CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=YES | xcpretty -f `xcpretty-travis-formatter`
+  - xcodebuild -workspace './YAHTTPVCR.xcworkspace' -scheme '[Test] iOS Code Coverage (Full)' -configuration Debug -destination 'platform=iOS Simulator,name=iPhone 7,OS=11.4' build test CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=YES | xcpretty --simple
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
