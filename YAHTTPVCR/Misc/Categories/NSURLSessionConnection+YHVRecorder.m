@@ -79,7 +79,7 @@
 }
 
 - (void)YHV__didReceiveResponse:(NSURLResponse *)response sniff:(BOOL)sniff {
-
+    
     if (self.task.originalRequest.YHV_cassetteChapterIdentifier || self.task.currentRequest.YHV_cassetteChapterIdentifier) {
         if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
             response = [(NSHTTPURLResponse *)response YHV_responseForRequest:self.task.originalRequest];
@@ -89,6 +89,19 @@
     }
     
     [self YHV__didReceiveResponse:response sniff:sniff];
+}
+
+- (void)YHV__didReceiveResponse:(id)response sniff:(BOOL)sniff rewrite:(BOOL)rewrite {
+    
+    if (self.task.originalRequest.YHV_cassetteChapterIdentifier || self.task.currentRequest.YHV_cassetteChapterIdentifier) {
+        if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
+            response = [(NSHTTPURLResponse *)response YHV_responseForRequest:self.task.originalRequest];
+        }
+        
+        [YHVVCR handleResponsePlayedForTask:self.task];
+    }
+    
+    [self YHV__didReceiveResponse:response sniff:sniff rewrite:rewrite];
 }
 
 - (void)YHV__didReceiveData:(id)data {

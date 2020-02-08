@@ -217,7 +217,7 @@ NS_ASSUME_NONNULL_END
         _sharedTypeNames = @[@" YHVRequestScene", @"YHVResponseScene", @"    YHVDataScene", @"   YHVErrorScene", @" YHVClosingScene"];
     });
     
-    return [NSString stringWithFormat:@"<YHVScene %p type: %@, id: %@, played: %@, playing: %@>", self, self.identifier, _sharedTypeNames[self.type],
+    return [NSString stringWithFormat:@"<YHVScene %p type: %@, id: %@, played: %@, playing: %@>", self, _sharedTypeNames[self.type], self.identifier, 
             self.played ? @"YES" : @"NO", self.playing ? @"YES" : @"NO"];
 }
 

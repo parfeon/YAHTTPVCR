@@ -1,3 +1,17 @@
+## [1.4.2](https://github.com/parfeon/YAHTTPVCR/releases/tag/v1.4.2)
+February 8 2020
+
+#### Fixed
+- Fixed issue which prevented library from proper operation on latest OS versions.
+  - Fixed by [parfeon](https://github.com/parfeon) in Pull Request [#13](https://github.com/parfeon/YAHTTPVCR/pull/13).
+
+## [1.4.1](https://github.com/parfeon/YAHTTPVCR/releases/tag/v1.4.1)
+February 7 2020
+
+#### Fixed
+- Fixed compressed body matching.
+  - Fixed by [parfeon](https://github.com/parfeon) in Pull Request [#12](https://github.com/parfeon/YAHTTPVCR/pull/12).
+
 ## [1.4.0](https://github.com/parfeon/YAHTTPVCR/releases/tag/v1.4.0)
 January 5 2020
 
