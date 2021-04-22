@@ -19,7 +19,7 @@ Library is pretty configuration is pretty simple. All configuration can be speci
 
 Configuration represented by **YHVConfiguration** class and has following parameters:  
 
-##### [`@property (nonatomic, copy) NSString *cassettesPath`](#property-nonatomic-copy-nsstring-cassettespath)
+### ## [`@property (nonatomic, copy) NSString *cassettesPath`](#property-nonatomic-copy-nsstring-cassettespath)
 Attribute: **Required**
 
 Reference on path where recorded cassettes is stored. This path will be used to compose path to concrete cassette using [cassettePath](#property-nonatomic-copy-nsstring-cassettepath).  
