@@ -8,6 +8,7 @@
 #import "YHVMethodsSwizzler.h"
 #import "YHVVCR+Recorder.h"
 #import "YHVVCR+Player.h"
+#import <objc/runtime.h>
 
 
 #pragma mark Protected interface declaration
@@ -38,7 +39,48 @@
     
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        [YHVMethodsSwizzler swizzleMethodsIn:NSClassFromString(@"__NSCFURLSessionTask") withMethodsFrom:self prefix:@"YHV_"];
+        Class className = NSClassFromString(@"__NSCFURLSessionTask");
+        
+        // Check whether expected class exists and search replacement for it if not.
+        if (!className) {
+            unsigned int clsCount;
+            Class *clss = objc_copyClassList(&clsCount);
+            NSMutableArray<NSString *> *suitableClasses = [NSMutableArray new];
+            
+            for (NSUInteger clsIdx = 0; clsIdx < clsCount; clsIdx++) {
+                Class cls = clss[clsIdx];
+                NSString *clsName = NSStringFromClass(cls);
+                if ([clsName rangeOfString:@"session"].location != NSNotFound ||
+                    [clsName rangeOfString:@"Session"].location != NSNotFound) {
+                    
+                    NSMutableArray *methodsToCheck = [@[@"setError:", @"setResponse:", @"updateCurrentRequest:"] mutableCopy];
+                    unsigned int methodsCount;
+                    Method *methods = class_copyMethodList(cls, &methodsCount);
+                    
+                    for (NSUInteger methodIdx = 0; methodIdx < methodsCount; methodIdx++) {
+                        Method method = methods[methodIdx];
+                        NSString *methodName = NSStringFromSelector(method_getName(method));
+                        
+                        if ([methodsToCheck containsObject:methodName]) {
+                            [methodsToCheck removeObject:methodName];
+                        }
+                    }
+                    
+                    if (methodsToCheck.count == 0) {
+                        [suitableClasses addObject:clsName];
+                    }
+                    
+                    free(methods);
+                }
+            }
+            free(clss);
+            
+            if (suitableClasses.count > 0) {
+                className = NSClassFromString(suitableClasses.firstObject);
+            }
+        }
+        
+        [YHVMethodsSwizzler swizzleMethodsIn:className withMethodsFrom:self prefix:@"YHV_"];
     });
 }
 

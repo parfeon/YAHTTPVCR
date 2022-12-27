@@ -8,6 +8,7 @@
 #import "YHVMethodsSwizzler.h"
 #import "YHVVCR+Recorder.h"
 #import "YHVVCR+Player.h"
+#import <objc/runtime.h>
 
 
 #pragma mark Protected interface declaration
@@ -56,6 +57,18 @@
 
 
 #pragma mark - Swizzle methods
+
+- (NSURLSessionTask *)YHV_task {
+    Ivar ivar = class_getInstanceVariable(self.class, "_task");
+    
+    if (!ivar) {
+        [[NSException exceptionWithName:@"YHVNSURLSessionConnection"
+                                 reason:@"Unable to find '_task' ivar"
+                               userInfo:nil] raise];
+    }
+    
+    return object_getIvar(self, ivar);
+}
 
 - (id)YHV_initWithTask:(NSURLSessionTask *)task delegate:(id)delegate delegateQueue:(id)queue {
 
