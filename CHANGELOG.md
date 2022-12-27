@@ -1,3 +1,9 @@
+## [1.4.2](https://github.com/parfeon/YAHTTPVCR/releases/tag/v1.5.0)
+December 27 2022
+
+#### Added
+- Added `YAHTTPVCR` compatibility with never OS versions which changed private interface after `YAHTTPVCR` 1.4.2 release.
+
 ## [1.4.2](https://github.com/parfeon/YAHTTPVCR/releases/tag/v1.4.2)
 February 8 2020
 
