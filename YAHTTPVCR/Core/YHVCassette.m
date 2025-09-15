@@ -563,7 +563,8 @@
                 }
             }
             
-            if (nextChapterIdentifier) {
+            if (nextChapterIdentifier && ![nextChapterIdentifier isEqualToString:chapterIdentifier] &&
+                self.activeClients[nextChapterIdentifier] != nil) {
                 dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                     [self playResponsesForChapterWithIdentifier:nextChapterIdentifier];
                 });
@@ -617,7 +618,15 @@
     dispatch_block_t handlerBlock = ^{
         if (![self.completedChaptersIdentifier containsObject:identifier]) {
             YHVScene *scene = [self sceneWithType:sceneType forChapter:identifier];
-            BOOL isCurrentScene = [scene isEqual:self.currentScene];
+            if (!self.currentScene && scene && !scene.played && scene.type == YHVErrorScene) {
+                for (YHVScene *_scene in self.scenes) {
+                    // Marking as completed previous scenes before error.
+                    if ([_scene.identifier isEqualToString:scene.identifier] && ![_scene isEqual:scene])
+                        [_scene setPlayed];
+                }
+                [scene setPlaying];
+            }
+            BOOL isCurrentScene = !self.currentScene || [scene isEqual:self.currentScene];
             NSString *nextChapterIdentifier = identifier;
             
             if (scene && !scene.played && (scene.playing || sceneType == YHVRequestScene) && scene.type == sceneType) {
@@ -631,13 +640,16 @@
                     return;
                 }
                 
+                NSString *currentChapterIdentifier = self.currentScene.identifier;
                 self.currentScene = nil;
                 
                 if ([self.completedChaptersIdentifier containsObject:identifier]) {
                     nextChapterIdentifier = [self nextIncompleteChapterIdentifier];
                 }
                 
-                if (sceneType != YHVRequestScene && nextChapterIdentifier) {
+                if (sceneType != YHVRequestScene && nextChapterIdentifier &&
+                    ((currentChapterIdentifier && [nextChapterIdentifier isEqualToString:currentChapterIdentifier]) ||
+                     self.activeClients[nextChapterIdentifier] != nil)) {
                     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                         [self playResponsesForChapterWithIdentifier:nextChapterIdentifier];
                     });

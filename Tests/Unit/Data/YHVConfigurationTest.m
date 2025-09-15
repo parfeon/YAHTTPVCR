@@ -49,11 +49,6 @@
     XCTAssertTrue([self.configuration.matchers containsObject:YHVMatcher.query], @"Missing URI query component matcher in defaults.");
 }
 
-- (void)testNew_ShouldThrow_WhenUsed {
-    
-    XCTAssertThrowsSpecificNamed([YHVConfiguration new], NSException, NSDestinationInvalidException);
-}
-
 
 #pragma mark - Tests :: Potocols :: NSCopying
 

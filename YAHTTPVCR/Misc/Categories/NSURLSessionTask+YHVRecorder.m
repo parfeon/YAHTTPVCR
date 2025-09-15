@@ -92,9 +92,7 @@
     NSURLSessionTask *task = (NSURLSessionTask *)self;
     
     if (task.originalRequest.YHV_cassetteChapterIdentifier || task.currentRequest.YHV_cassetteChapterIdentifier) {
-        if (((NSError *)error).code != NSURLErrorCancelled) {
-            [YHVVCR handleError:error playedForTask:task];
-        }
+        [YHVVCR handleError:error playedForTask:task];
     } else {
         [YHVVCR recordCompletionWithError:error forTask:task];
     }
